@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Unity.Collections;
@@ -40,6 +39,10 @@ public class PlayerNetwork : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        if (IsOwner)
+        {
+            Debug.Log("My ID " + OwnerClientId);
+        }
         // register network callback inside OnNetworkSpawn
         // do not in Awake or Start
         randomNumber.OnValueChanged += OnRandomNumberChanged;
@@ -74,12 +77,31 @@ public class PlayerNetwork : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.C))
         {
+            // TestServerRpc(RandomString(128).ToString());
+            // TestParamServerRpc(new ServerRpcParams());
+            // TestClientRpc();
+
+            if (IsServer && NetworkManager.ConnectedClients.ContainsKey(1))
+            {
+                TestParamClientRpc(Random.Range(0, 100), new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new ulong[] {
+                            // 0,
+                            1
+                        }
+                    }
+                });
+            }
+            /**
             customData.Value = new MyCustomData
             {
                 _int = Random.Range(0, 100),
                 _bool = Random.Range(0, 2) == 0,
                 _string = RandomString(FixedString128Bytes.UTF8MaxLengthInBytes)
             };
+            */
         }
 
         Vector3 moveDir = new Vector3(0, 0, 0);
@@ -96,10 +118,44 @@ public class PlayerNetwork : NetworkBehaviour
     {
         int len = Random.Range(1, maxLen);
         StringBuilder sb = new StringBuilder(maxLen);
-        for (int i=0; i<len; i++)
+        for (int i = 0; i < len; i++)
         {
             sb.Append(System.Convert.ToChar(Random.Range((int)'A', (int)'Z' + 1)));
         }
         return sb.ToString();
+    }
+
+    [ServerRpc]
+    private void TestServerRpc(string message)
+    {
+        // This code call from client but only run on server
+        Debug.Log("TestServerRpc " + OwnerClientId + " : " + message);
+        // customData.Value = new MyCustomData
+        // {
+        //     _int = Random.Range(0, 100),
+        //     _bool = Random.Range(0, 2) == 0,
+        //     _string = RandomString(FixedString128Bytes.UTF8MaxLengthInBytes)
+        // };
+    }
+
+    [ServerRpc]
+    private void TestParamServerRpc(ServerRpcParams param)
+    {
+        // This code call from client but only run on server
+        Debug.Log("TestParamServerRpc ownerID " + OwnerClientId + " senderID " + param.Receive.SenderClientId);
+    }
+
+    [ClientRpc]
+    private void TestClientRpc()
+    {
+        // This code call from server but run on all clients
+        Debug.Log("TestClientRpc ownerID " + OwnerClientId);
+    }
+
+    [ClientRpc]
+    private void TestParamClientRpc(int number, ClientRpcParams param)
+    {
+        // This code call from server but run on all clients
+        Debug.Log("TestClientRpc ownerID " + OwnerClientId + " number " + number);
     }
 }
