@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class PlayerNetwork : NetworkBehaviour
 {
+    [SerializeField] private Transform spawnObjectPrefab;
+    private Transform spwawnObjectTransform;
+
     private NetworkVariable<int> randomNumber = new NetworkVariable<int>(
         value: 1,
         writePerm: NetworkVariableWritePermission.Owner
@@ -35,6 +38,7 @@ public class PlayerNetwork : NetworkBehaviour
         value: new MyCustomData { _int = 1, _bool = true, _string = "" },
         writePerm: NetworkVariableWritePermission.Owner
     );
+
 
     public override void OnNetworkSpawn()
     {
@@ -104,6 +108,31 @@ public class PlayerNetwork : NetworkBehaviour
             */
         }
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (IsServer)
+            {
+                SpawnObject();
+            }
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.Delete))
+        {
+            DespawnObject();
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            SpawnObjectServerRpc(new ServerRpcParams());
+        }
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            DespawnObjectServerRpc(new ServerRpcParams());
+        }
+        
+
         Vector3 moveDir = new Vector3(0, 0, 0);
         if (Input.GetKey(KeyCode.W)) moveDir.z = +1f;
         if (Input.GetKey(KeyCode.S)) moveDir.z = -1f;
@@ -112,6 +141,29 @@ public class PlayerNetwork : NetworkBehaviour
 
         float moveSpeed = 3f;
         transform.position += moveDir * moveSpeed * Time.deltaTime;
+    }
+
+    private void DespawnObject()
+    {
+        if (spwawnObjectTransform != null)
+        {
+            // Destroy(spwawnObjectTransform.gameObject);
+            NetworkObject networkObject = spwawnObjectTransform.GetComponent<NetworkObject>();
+            if (networkObject != null)
+            {
+                networkObject.Despawn(true);
+            }
+        }
+    }
+
+    private void SpawnObject()
+    {
+        spwawnObjectTransform = Instantiate(spawnObjectPrefab, this.transform.position + (Vector3.up * 2), Quaternion.identity);
+        NetworkObject networkObject = spwawnObjectTransform.GetComponent<NetworkObject>();
+        if (networkObject != null)
+        {
+            networkObject.Spawn(true);
+        }
     }
 
     private FixedString128Bytes RandomString(int maxLen)
@@ -143,6 +195,26 @@ public class PlayerNetwork : NetworkBehaviour
     {
         // This code call from client but only run on server
         Debug.Log("TestParamServerRpc ownerID " + OwnerClientId + " senderID " + param.Receive.SenderClientId);
+    }
+
+    [ServerRpc]
+    private void SpawnObjectServerRpc(ServerRpcParams param)
+    {
+        Debug.Log("SpawnObjectServerRpc ownerID " + OwnerClientId + " senderID " + param.Receive.SenderClientId);
+        // if (IsOwner)
+        {
+            SpawnObject();
+        }
+    }
+
+    [ServerRpc]
+    private void DespawnObjectServerRpc(ServerRpcParams param)
+    {
+        Debug.Log("DespawnObjectServerRpc ownerID " + OwnerClientId + " senderID " + param.Receive.SenderClientId);
+        // if (IsOwner)
+        {
+            DespawnObject();
+        }
     }
 
     [ClientRpc]
