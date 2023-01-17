@@ -10,11 +10,21 @@ namespace SmartConsole.Components
         [SerializeField] private Image m_IconImage;
         [SerializeField] private TextMeshProUGUI m_Text;
         [SerializeField] private Image m_BackgroundImage;
+
+        [Space(10)]
         
         [SerializeField] private Sprite m_LogSprite;
         [SerializeField] private Sprite m_ErrorSprite;
         [SerializeField] private Sprite m_WarningSprite;
         [SerializeField] private Sprite m_CommandSprite;
+
+        [Space(10)]
+
+        [SerializeField] private Color m_LogColor = Color.white;
+        [SerializeField] private Color m_WarningColor = Color.yellow;
+        [SerializeField] private Color m_ErrorColor = Color.red;
+
+        [Space(10)]
 
         [SerializeField] private Color m_ParameterColor;
         [SerializeField] private Color m_BackgroundColor1;
@@ -23,7 +33,7 @@ namespace SmartConsole.Components
         
         private const string k_DateFormat = "hh:mm:ss";
         
-        public void SetText(string message, bool addDate = true)
+        public void SetText(string message, LogMessageTypes type, bool addDate = true)
         {
             if (addDate)
             {
@@ -32,6 +42,14 @@ namespace SmartConsole.Components
             }
             
             m_Text.text += message;
+
+            m_Text.color = type switch
+            {
+                LogMessageTypes.Log => m_LogColor,
+                LogMessageTypes.Error => m_ErrorColor,
+                LogMessageTypes.Warning => m_WarningColor,
+                _ => m_LogColor
+            };
         }
         
         public void SetTextParameter(string[] parameters)

@@ -34,7 +34,7 @@ namespace SmartConsole.Components
 
         private void OnValidate()
         {
-            SetupAlpha();
+            SetupAlpha(m_alpha);
         }
 
         private void Awake()
@@ -44,19 +44,31 @@ namespace SmartConsole.Components
 
         private void Start()
         {
-            SetupAlpha();
+            SetupAlpha(m_alpha);
         }
 
-        private void SetupAlpha()
+        public float BackgroundAlpha
+        {
+            get => m_alpha;
+            set
+            {
+                m_alpha = value;
+                SetupAlpha(m_alpha);
+            }
+        }
+
+        private void SetupAlpha(float alpha)
         { 
-            if (m_PrevAlpha == m_alpha)
+            if (m_PrevAlpha == alpha)
             {
                 return;
             }
 
+            m_PrevAlpha = alpha;
+
             if (m_mainPanel != null)
             {
-                Color c = new Color(m_mainPanel.color.r, m_mainPanel.color.g, m_mainPanel.color.b, m_alpha);
+                Color c = new Color(m_mainPanel.color.r, m_mainPanel.color.g, m_mainPanel.color.b, m_PrevAlpha);
                 m_mainPanel.color = c;
             }
 
@@ -64,7 +76,7 @@ namespace SmartConsole.Components
             {
                 if (m_LogMessageTextPrefab.TryGetComponent<LogMessageSetup>(out LogMessageSetup logMessageSetup))
                 {
-                    logMessageSetup.SetBackgroundAlpha(m_alpha);
+                    logMessageSetup.SetBackgroundAlpha(m_PrevAlpha);
                 }
             }
 
@@ -79,11 +91,9 @@ namespace SmartConsole.Components
                 foreach(LogMessageSetup logMessage in children)
                 {
                     Image background = logMessage.GetComponent<Image>();
-                    background.color = new Color(background.color.r, background.color.g, background.color.b, m_alpha);
+                    background.color = new Color(background.color.r, background.color.g, background.color.b, m_PrevAlpha);
                 }
             }
-
-            m_PrevAlpha = m_alpha;
         }
 
         private void GenerateLog(LogMessage logMessage)
@@ -92,7 +102,7 @@ namespace SmartConsole.Components
             
             if (logInstance.TryGetComponent(out LogMessageSetup logInstanceSetup))
             {
-                logInstanceSetup.SetText(logMessage.Text);
+                logInstanceSetup.SetText(logMessage.Text, logMessage.Type);
                 logInstanceSetup.SetIcon(logMessage.Type);
                 logInstanceSetup.SetBackgroundColor(ref m_IsLastMessageEven);
             }
@@ -117,7 +127,7 @@ namespace SmartConsole.Components
 
             if (logInstance.TryGetComponent(out LogMessageSetup logInstanceSetup))
             {
-                logInstanceSetup.SetText(logMessage.Text, false);
+                logInstanceSetup.SetText(logMessage.Text, LogMessageTypes.Autocomplete, false);
                 logInstanceSetup.SetIcon(LogMessageTypes.Autocomplete);
                 logInstanceSetup.SetAutocompleteBackgroundColor();
                 

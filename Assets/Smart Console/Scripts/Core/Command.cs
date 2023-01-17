@@ -103,7 +103,7 @@ namespace SmartConsole
         
         private float TryParseFloat(string toParse)
         {
-            toParse = toParse.Replace('.', ',');
+            toParse = toParse.Replace(',', '.');
             
             if (float.TryParse(toParse, out float n))
             {
