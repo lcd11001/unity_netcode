@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 
 namespace SmartConsole.Components
 {
+    [DefaultExecutionOrder(-999)]
     public class ConsoleSystem : MonoBehaviour
     {
         [SerializeField] private GameObject m_CanvasGameobject;

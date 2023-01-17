@@ -16,6 +16,7 @@ namespace SmartConsole.Components
         private List<GameObject> m_AutocompleteInstances = new List<GameObject>();
         private string m_AutocompleteCommandRef;
         private bool m_IsLastMessageEven;
+        private float m_PrevAlpha = -1.0f;
         
         private void OnEnable()
         {
@@ -31,6 +32,11 @@ namespace SmartConsole.Components
             m_ConsoleSystem.OnClearAutocomplete -= ClearAutocompletes;
         }
 
+        private void OnValidate()
+        {
+            SetupAlpha();
+        }
+
         private void Awake()
         {
             m_ConsoleSystem = gameObject.GetComponent<ConsoleSystem>();
@@ -38,6 +44,16 @@ namespace SmartConsole.Components
 
         private void Start()
         {
+            SetupAlpha();
+        }
+
+        private void SetupAlpha()
+        { 
+            if (m_PrevAlpha == m_alpha)
+            {
+                return;
+            }
+
             if (m_mainPanel != null)
             {
                 Color c = new Color(m_mainPanel.color.r, m_mainPanel.color.g, m_mainPanel.color.b, m_alpha);
@@ -51,6 +67,23 @@ namespace SmartConsole.Components
                     logMessageSetup.SetBackgroundAlpha(m_alpha);
                 }
             }
+
+            if (m_GridContent != null)
+            {
+                if (m_GridContent.TryGetComponent<Image>(out Image gridBackground))
+                {
+                    gridBackground.enabled = false;
+                }
+
+                LogMessageSetup[] children = m_GridContent.GetComponentsInChildren<LogMessageSetup>();
+                foreach(LogMessageSetup logMessage in children)
+                {
+                    Image background = logMessage.GetComponent<Image>();
+                    background.color = new Color(background.color.r, background.color.g, background.color.b, m_alpha);
+                }
+            }
+
+            m_PrevAlpha = m_alpha;
         }
 
         private void GenerateLog(LogMessage logMessage)
