@@ -58,7 +58,10 @@ public class NetworkUIManager : MonoBehaviour
 
     private void Update()
     {
-        //playersInGameText.text = $"Players in game: {PlayersManager.Instance.PlayersInGame}";
+        if (playersInGameText != null)
+        {
+            playersInGameText.text = $"Players in game: {PlayersManager.Instance.PlayersInGame}";
+        }
     }
 
 }
