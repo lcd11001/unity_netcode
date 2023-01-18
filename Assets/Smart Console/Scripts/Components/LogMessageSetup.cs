@@ -23,6 +23,7 @@ namespace SmartConsole.Components
         [SerializeField] private Color m_LogColor = Color.white;
         [SerializeField] private Color m_WarningColor = Color.yellow;
         [SerializeField] private Color m_ErrorColor = Color.red;
+        [SerializeField] private Color m_CommandColor = Color.green;
 
         [Space(10)]
 
@@ -48,6 +49,7 @@ namespace SmartConsole.Components
                 LogMessageTypes.Log => m_LogColor,
                 LogMessageTypes.Error => m_ErrorColor,
                 LogMessageTypes.Warning => m_WarningColor,
+                LogMessageTypes.Command => m_CommandColor,
                 _ => m_LogColor
             };
         }

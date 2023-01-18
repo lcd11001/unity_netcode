@@ -14,7 +14,7 @@ public class NetworkCommand : CommandBehaviour
         base.Start();
         consoleUIGenerator = FindObjectOfType<ConsoleUIGenerator>();
 
-        Debug.LogWarning("Type help to list all commands");
+        Debug.LogWarning("Type \"help\" to list all commands");
     }
 
     [Command]
@@ -22,7 +22,10 @@ public class NetworkCommand : CommandBehaviour
     {
         for (int i = 0; i < Command.List.Count; i++)
         {
-            Debug.Log(Command.List[i].MethodInfo.Name);
+            if (Command.List[i].MethodInfo.Name != "help")
+            {
+                Debug.Log(Command.List[i].MethodInfo.Name);
+            }
         }
     }
 

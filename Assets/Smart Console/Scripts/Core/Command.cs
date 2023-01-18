@@ -103,7 +103,8 @@ namespace SmartConsole
         
         private float TryParseFloat(string toParse)
         {
-            toParse = toParse.Replace(',', '.');
+            string defaultDecimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            toParse = toParse.Replace(",", ".").Replace(".", defaultDecimalSeparator);
             
             if (float.TryParse(toParse, out float n))
             {
