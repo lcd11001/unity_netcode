@@ -7,7 +7,7 @@ using TMPro;
 public class PlayerHud : NetworkBehaviour
 {
     [SerializeField] TextMeshPro playerInfo;
-    private NetworkVariable<string> playerName = new NetworkVariable<string>();
+    private NetworkVariable<NetworkString> playerName = new NetworkVariable<NetworkString>();
 
     public override void OnNetworkSpawn()
     {
@@ -16,9 +16,10 @@ public class PlayerHud : NetworkBehaviour
         if (IsServer)
         {
             playerName.Value = $"Player {OwnerClientId}";
-
-            SetOverlay();
         }
+
+        //Debug.Log($"PlayerHud::OnNetworkSpawn {OwnerClientId}");
+        SetOverlay();
     }
 
     private void SetOverlay()
