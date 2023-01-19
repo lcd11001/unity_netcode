@@ -679,11 +679,11 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 374031452}
-    PlayerPrefab: {fileID: 8057157316553268457, guid: 630a5ad3bcf860746a97c7ae05770ae7,
+    PlayerPrefab: {fileID: 2517573182897676002, guid: 630a5ad3bcf860746a97c7ae05770ae7,
       type: 3}
     NetworkPrefabs:
     - Override: 0
-      Prefab: {fileID: 8057157316553268457, guid: 630a5ad3bcf860746a97c7ae05770ae7,
+      Prefab: {fileID: 2517573182897676002, guid: 630a5ad3bcf860746a97c7ae05770ae7,
         type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
