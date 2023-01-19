@@ -8,7 +8,6 @@ public class PlayerHud : NetworkBehaviour
 {
     [SerializeField] TextMeshPro playerInfo;
     private NetworkVariable<string> playerName = new NetworkVariable<string>();
-    private bool overlaySet = false;
 
     public override void OnNetworkSpawn()
     {
