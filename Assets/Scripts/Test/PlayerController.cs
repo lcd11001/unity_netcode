@@ -1,14 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Unity.Netcode;
 
-[RequireComponent(typeof(NetworkObject))]
+[RequireComponent(typeof(NetworkObject), typeof(PlayerInput))]
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Vector2 defaultPositionRange = new Vector2(-4, 4);
     [SerializeField] private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
     Vector3 prevPosition = new Vector3();
+    PlayerInput playerInput;
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();        
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        playerInput.enabled = IsLocalPlayer;
+    }
+
     private void Start()
     {
         transform.position = new Vector3(
@@ -20,12 +35,12 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (IsLocalPlayer)
+        if (IsClient && IsOwner)
         {
             UpdateClient();
         }
         
-        if (IsServer)
+        if (IsServer || IsOwnedByServer)
         {
             UpdateServer();
         }
