@@ -813,6 +813,39 @@ MonoBehaviour:
   defaultPositionRange: {x: -4, y: 4}
   position:
     m_InternalValue: {x: 0, y: 0, z: 0}
+  animEvents:
+  - animClip: {fileID: -3100369314251171874, guid: 12e52e465ed793a4d801955e9f964a82,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimIdle
+  - animClip: {fileID: -2702400367771620057, guid: 063aa479676c4084ebf187660ca0a7b8,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimInAir
+  - animClip: {fileID: -9098803823909532060, guid: 98f277b0c8055e143b2fcf058d3c27dc,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimJumpLand
+  - animClip: {fileID: 7478122292733868173, guid: 98f277b0c8055e143b2fcf058d3c27dc,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimJumpStart
+  - animClip: {fileID: 6564411413370888346, guid: 16114d403eabb53438de032c6f0d1deb,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimRun_N
+  - animClip: {fileID: -2817517482862745934, guid: 3c033631149b9c541bcf155cd94cccba,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimRun_N_Land
+  - animClip: {fileID: 1657602633327794031, guid: 8269a9f8cf495034c817722ac21f309f,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimWalk_N
+  - animClip: {fileID: 3062299877480904481, guid: 325a26d62b61fa94cb3c97c435efebc5,
+      type: 3}
+    eventTime: 0
+    funcName: StartAnimWalk_N_Land
 --- !u!1 &2592955200151438385
 GameObject:
   m_ObjectHideFlags: 0
