@@ -519,13 +519,15 @@ GameObject:
   - component: {fileID: 3007252073987834968}
   - component: {fileID: 9177151868729024034}
   - component: {fileID: 2517573182897676008}
-  - component: {fileID: 2517573182897676009}
+  - component: {fileID: -3251818914369404738}
   - component: {fileID: 5625092829401429010}
   - component: {fileID: 2188301180361015966}
   - component: {fileID: 2517573182897676014}
   - component: {fileID: 5625092829401429005}
   - component: {fileID: 5625092829401429004}
   - component: {fileID: -6269866727501330771}
+  - component: {fileID: 4687543469224106196}
+  - component: {fileID: -5535149759654742701}
   m_Layer: 8
   m_Name: PlayerArmatureNetwork
   m_TagString: Player
@@ -590,7 +592,7 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.93, z: 0}
---- !u!114 &2517573182897676009
+--- !u!114 &-3251818914369404738
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -599,7 +601,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2517573182897676002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
+  m_Script: {fileID: 11500000, guid: 5be1cd530790ceb4ea262c55e88d4024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 2
@@ -628,7 +630,7 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 513
+    m_Bits: 1
   CinemachineCameraTarget: {fileID: 7783957716482893753}
   TopClamp: 70
   BottomClamp: -30
@@ -677,7 +679,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2517573182897676002}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -698,7 +700,7 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2517573182897676009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputMove
         m_Mode: 0
@@ -714,7 +716,7 @@ MonoBehaviour:
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow,/XInputControllerWindows/leftStick]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2517573182897676009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputLook
         m_Mode: 0
@@ -730,7 +732,7 @@ MonoBehaviour:
     m_ActionName: Player/Look[/Mouse/delta,/XInputControllerWindows/rightStick]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2517573182897676009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputJump
         m_Mode: 0
@@ -746,7 +748,7 @@ MonoBehaviour:
     m_ActionName: Player/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2517573182897676009}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputSprint
         m_Mode: 0
@@ -811,41 +813,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultPositionRange: {x: -4, y: 4}
-  position:
-    m_InternalValue: {x: 0, y: 0, z: 0}
-  animEvents:
-  - animClip: {fileID: -3100369314251171874, guid: 12e52e465ed793a4d801955e9f964a82,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimIdle
-  - animClip: {fileID: -2702400367771620057, guid: 063aa479676c4084ebf187660ca0a7b8,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimInAir
-  - animClip: {fileID: -9098803823909532060, guid: 98f277b0c8055e143b2fcf058d3c27dc,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimJumpLand
-  - animClip: {fileID: 7478122292733868173, guid: 98f277b0c8055e143b2fcf058d3c27dc,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimJumpStart
-  - animClip: {fileID: 6564411413370888346, guid: 16114d403eabb53438de032c6f0d1deb,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimRun_N
-  - animClip: {fileID: -2817517482862745934, guid: 3c033631149b9c541bcf155cd94cccba,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimRun_N_Land
-  - animClip: {fileID: 1657602633327794031, guid: 8269a9f8cf495034c817722ac21f309f,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimWalk_N
-  - animClip: {fileID: 3062299877480904481, guid: 325a26d62b61fa94cb3c97c435efebc5,
-      type: 3}
-    eventTime: 0
-    funcName: StartAnimWalk_N_Land
+--- !u!114 &4687543469224106196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2517573182897676002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69e3afe2bf74cd45938da4b7f139b36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 0
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 0
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  InLocalSpace: 0
+  Interpolate: 1
+--- !u!114 &-5535149759654742701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2517573182897676002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df7b45c93b08eb4382bbce7760e463d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 9177151868729024034}
 --- !u!1 &2592955200151438385
 GameObject:
   m_ObjectHideFlags: 0
