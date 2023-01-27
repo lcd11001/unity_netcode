@@ -16,7 +16,7 @@ public class NetworkUIManager : MonoBehaviour
     private void Awake()
     {
         Cursor.visible = true;
-        physicButton.gameObject.SetActive(false);
+        physicButton?.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -74,6 +74,12 @@ public class NetworkUIManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Debug.Log("Press key P to Spawn Physic Objects");
+            SpwanerControl.Instance.SpawnObjects();
+        }
+
         if (playersInGameText != null)
         {
             playersInGameText.text = $"Players in game: {PlayersManager.Instance.PlayersInGame}";
