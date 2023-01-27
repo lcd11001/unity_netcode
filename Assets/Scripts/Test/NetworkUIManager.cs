@@ -10,11 +10,13 @@ public class NetworkUIManager : MonoBehaviour
     [SerializeField] private Button startServerButton;
     [SerializeField] private Button startHostButton;
     [SerializeField] private Button startClientButton;
+    [SerializeField] private Button physicButton;
     [SerializeField] private TextMeshProUGUI playersInGameText;
 
     private void Awake()
     {
         Cursor.visible = true;
+        physicButton.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -54,6 +56,20 @@ public class NetworkUIManager : MonoBehaviour
                 Debug.Log("Client could not started");
             }
         });
+
+        physicButton?.onClick.AddListener(() =>
+        {
+            Debug.Log("Spawn Physic Objects");
+            SpwanerControl.Instance.SpawnObjects();
+        });
+
+        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+    }
+
+    private void OnServerStarted()
+    {
+        Debug.Log("Server started");
+        physicButton?.gameObject.SetActive(true);
     }
 
     private void Update()
