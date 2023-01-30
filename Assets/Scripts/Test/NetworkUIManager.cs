@@ -15,12 +15,16 @@ public class NetworkUIManager : MonoBehaviour
 
     private void Awake()
     {
-        Cursor.visible = true;
         physicButton?.gameObject.SetActive(false);
     }
 
     private void Start()
     {
+        // Set this to true to reveal the cursor. Set it to false to hide the cursor.
+        // Note that in CursorLockMode.Locked mode, the cursor is invisible regardless of the value of this property.
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         startHostButton?.onClick.AddListener(() =>
         {
             if (NetworkManager.Singleton.StartHost())
