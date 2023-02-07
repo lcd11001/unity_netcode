@@ -22,16 +22,16 @@ public class DestroyPhysicObject : MonoBehaviour
     private IEnumerator AutoDestroy(float destroyTimer)
     {
         yield return new WaitForSeconds(destroyTimer);
-        if (NetworkManager.Singleton.IsServer)
+        if (networkObject != null)
         {
-            if (networkObject != null)
+            if (NetworkManager.Singleton.IsServer)
             {
                 networkObject.Despawn();
             }
-            else
-            {
-                Destroy(gameObject);
-            }
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 }
