@@ -12,6 +12,11 @@ public class NetworkUIManager : MonoBehaviour
     [SerializeField] private Button startClientButton;
     [SerializeField] private Button physicButton;
     [SerializeField] private TextMeshProUGUI playersInGameText;
+    [SerializeField] private TMP_InputField inputJoinCode;
+
+    [Space(10)]
+
+    [SerializeField] RelayManager relayManager;
 
     private void Awake()
     {
@@ -25,8 +30,18 @@ public class NetworkUIManager : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        startHostButton?.onClick.AddListener(() =>
+        startHostButton?.onClick.AddListener(async () =>
         {
+            if (relayManager.IsRelayEnabled)
+            {
+                RelayHostData relayHostData = await relayManager.SetupRelay();
+                inputJoinCode.text = relayHostData.JoinCode;
+            }
+            else
+            {
+                Debug.Log("Relay server not enable");
+            }
+
             if (NetworkManager.Singleton.StartHost())
             {
                 Debug.Log("Host started");
@@ -37,8 +52,18 @@ public class NetworkUIManager : MonoBehaviour
             }
         });
 
-        startServerButton?.onClick.AddListener(() =>
+        startServerButton?.onClick.AddListener(async () =>
         {
+            if (relayManager.IsRelayEnabled)
+            {
+                RelayHostData relayHostData = await relayManager.SetupRelay();
+                inputJoinCode.text = relayHostData.JoinCode;
+            }
+            else
+            {
+                Debug.Log("Relay server not enable");
+            }
+
             if (NetworkManager.Singleton.StartServer())
             {
                 Debug.Log("Server started");
@@ -49,8 +74,17 @@ public class NetworkUIManager : MonoBehaviour
             }
         });
 
-        startClientButton?.onClick.AddListener(() =>
+        startClientButton?.onClick.AddListener(async () =>
         {
+            if (relayManager.IsRelayEnabled && !string.IsNullOrEmpty(inputJoinCode.text))
+            {
+                await relayManager.JoinRelay(inputJoinCode.text);
+            }
+            else
+            {
+                Debug.Log("Relay server not enable");
+            }
+
             if (NetworkManager.Singleton.StartClient())
             {
                 Debug.Log("Client started");
