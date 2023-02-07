@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Netcode.Extensions;
+using UnityEngine.Assertions;
 
 public class SpwanerControl : NetworkBehaviourSingleton<SpwanerControl>
 {
@@ -16,12 +17,15 @@ public class SpwanerControl : NetworkBehaviourSingleton<SpwanerControl>
     private void Awake()
     {
         // init pool
+        Assert.IsFalse(networkObjectPool.gameObject.activeInHierarchy, "networkObjectPool should be inactive before run");
         NetworkManager.Singleton.OnServerStarted += Singleton_OnServerStarted;
     }
 
     private void Singleton_OnServerStarted()
     {
-        networkObjectPool.InitializePool();
+        Debug.Log("SpwanerControl::Singleton_OnServerStarted");
+        networkObjectPool.gameObject.SetActive(true);
+        //networkObjectPool.InitializePool();
     }
 
     public void SpawnObjects()
