@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8669399363802956723}
   - component: {fileID: 8669399363802956720}
   - component: {fileID: -4225767949009877120}
+  - component: {fileID: -8513548300318347258}
   m_Layer: 0
   m_Name: Physic Object
   m_TagString: Untagged
@@ -171,3 +172,16 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-8513548300318347258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8669399363802956749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9326977029d6da24e9ace11f2c5bbc32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyTimer: 3
