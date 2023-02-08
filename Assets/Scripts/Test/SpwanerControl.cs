@@ -19,6 +19,13 @@ public class SpwanerControl : NetworkBehaviourSingleton<SpwanerControl>
         // init pool
         Assert.IsFalse(networkObjectPool.gameObject.activeInHierarchy, "networkObjectPool should be inactive before run");
         NetworkManager.Singleton.OnServerStarted += Singleton_OnServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback += Singleton_OnClientConnectedCallback;
+    }
+
+    private void Singleton_OnClientConnectedCallback(ulong clientID)
+    {
+        Debug.Log($"SpwanerControl::Singleton_OnClientConnectedCallback {clientID}");
+        networkObjectPool.gameObject.SetActive(true);
     }
 
     private void Singleton_OnServerStarted()
