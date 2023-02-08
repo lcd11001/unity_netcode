@@ -34,8 +34,7 @@ public class NetworkUIManager : MonoBehaviour
         {
             if (relayManager.IsRelayEnabled)
             {
-                RelayHostData relayHostData = await relayManager.SetupRelay();
-                inputJoinCode.text = relayHostData.JoinCode;
+                inputJoinCode.text = await relayManager.SetupRelay();
             }
             else
             {
@@ -56,8 +55,7 @@ public class NetworkUIManager : MonoBehaviour
         {
             if (relayManager.IsRelayEnabled)
             {
-                RelayHostData relayHostData = await relayManager.SetupRelay();
-                inputJoinCode.text = relayHostData.JoinCode;
+                inputJoinCode.text = await relayManager.SetupRelay();
             }
             else
             {

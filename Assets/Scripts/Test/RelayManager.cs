@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Core.Environments;
@@ -22,7 +23,7 @@ public class RelayManager : CommandBehaviour
     public UnityTransport Transport => NetworkManager.Singleton.NetworkConfig.NetworkTransport.gameObject.GetComponent<UnityTransport>();
 
     [Command]
-    public async Task<RelayHostData> SetupRelay()
+    public async Task<string> SetupRelay()
     {
         try
         {
@@ -42,35 +43,26 @@ public class RelayManager : CommandBehaviour
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
             Debug.Log($"Host allocation ID {allocation.AllocationId} region {allocation.Region}");
 
-            RelayHostData relayHostData = new RelayHostData(allocation)
-            {
-                PlayerID = AuthenticationService.Instance.PlayerId,
-            };
+            string JoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            relayHostData.JoinCode = await RelayService.Instance.GetJoinCodeAsync(relayHostData.AllocationID);
+            RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
+            Debug.LogWarning($"Relay server: {relayServerData.Endpoint.ToString()}");
+            
+            Transport.SetRelayServerData(relayServerData);
 
-            //Transport.SetRelayServerData(relayHostData.IPv4Address, relayHostData.Port, relayHostData.AllocationIDBytes, relayHostData.Key, relayHostData.ConnectionData);
-            Transport.SetHostRelayData(
-                relayHostData.IPv4Address,
-                relayHostData.Port,
-                relayHostData.AllocationIDBytes,
-                relayHostData.Key,
-                relayHostData.ConnectionData
-            );
-
-            Debug.Log($"SetupRelay end with join code {relayHostData.JoinCode}");
-            return relayHostData;
+            Debug.Log($"SetupRelay end with join code {JoinCode}");
+            return JoinCode;
         }
         catch (RelayServiceException e)
         {
             Debug.Log($"SetupRelay error {e}");
         }
 
-        return default(RelayHostData);
+        return default(string);
     }
 
     [Command]
-    public async Task<RelayJoinData> JoinRelay(string joinCode)
+    public async Task<bool> JoinRelay(string joinCode)
     {
         try
         {
@@ -89,81 +81,21 @@ public class RelayManager : CommandBehaviour
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             Debug.Log($"Client join allocation ID {joinAllocation.AllocationId}");
 
-            RelayJoinData relayJoinData = new RelayJoinData(joinAllocation)
-            {
-                PlayerID = AuthenticationService.Instance.PlayerId,
-                JoinCode = joinCode
-            };
+            RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
+            Debug.LogWarning($"Relay server: {relayServerData.Endpoint.ToString()}");
 
-            //Transport.SetRelayServerData(relayJoinData.IPv4Address, relayJoinData.Port, relayJoinData.AllocationIDBytes, relayJoinData.Key, relayJoinData.ConnectionData, relayJoinData.HostConnectionData);
-            Transport.SetClientRelayData(
-                relayJoinData.IPv4Address,
-                relayJoinData.Port,
-                relayJoinData.AllocationIDBytes,
-                relayJoinData.Key,
-                relayJoinData.ConnectionData,
-                relayJoinData.HostConnectionData
-            );
+            Transport.SetRelayServerData(relayServerData);
 
-            Debug.Log($"Client joined game with join code {relayJoinData.JoinCode}");
+            Debug.Log($"Client joined game with join code {joinCode}");
 
-            return relayJoinData;
+            return true;
         }
         catch(RelayServiceException e)
         {
             Debug.Log($"JoinRelay error {e}");
         }
 
-        return default(RelayJoinData);
+        return false;
     }
 }
 
-public struct RelayHostData
-{
-    public string PlayerID;
-    public string JoinCode;
-    public string IPv4Address;
-    public ushort Port;
-    public Guid AllocationID;
-    public byte[] AllocationIDBytes;
-    public byte[] ConnectionData;
-    public byte[] Key;
-
-    public RelayHostData(Allocation allocation)
-    {
-        PlayerID = "";
-        JoinCode = "";
-        Key = allocation.Key;
-        Port = (ushort)allocation.RelayServer.Port;
-        AllocationID = allocation.AllocationId;
-        AllocationIDBytes = allocation.AllocationIdBytes;
-        IPv4Address = allocation.RelayServer.IpV4;
-        ConnectionData = allocation.ConnectionData;
-    }
-}
-
-public struct RelayJoinData
-{
-    public string PlayerID;
-    public string JoinCode;
-    public string IPv4Address;
-    public ushort Port;
-    public Guid AllocationID;
-    public byte[] AllocationIDBytes;
-    public byte[] ConnectionData;
-    public byte[] Key;
-    public byte[] HostConnectionData;
-
-    public RelayJoinData(JoinAllocation joinAllocation)
-    {
-        PlayerID = "";
-        JoinCode = "";
-        Key = joinAllocation.Key;
-        Port = (ushort)joinAllocation.RelayServer.Port;
-        AllocationID = joinAllocation.AllocationId;
-        AllocationIDBytes = joinAllocation.AllocationIdBytes;
-        IPv4Address = joinAllocation.RelayServer.IpV4;
-        ConnectionData = joinAllocation.ConnectionData;
-        HostConnectionData = joinAllocation.HostConnectionData;
-    }
-}

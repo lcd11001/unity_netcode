@@ -926,7 +926,7 @@ MonoBehaviour:
   LogLevel: 1
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 1405087362}
+    NetworkTransport: {fileID: 658772147}
     PlayerPrefab: {fileID: 2517573182897676002, guid: 630a5ad3bcf860746a97c7ae05770ae7,
       type: 3}
     NetworkPrefabs:
