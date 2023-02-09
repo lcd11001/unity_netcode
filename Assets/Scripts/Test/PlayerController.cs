@@ -33,6 +33,8 @@ public class PlayerController : NetworkBehaviour
                 0,
                 Random.Range(defaultPositionRange.x, defaultPositionRange.y)
             );
+
+            PlayerCameraFollow.Instance.FollowPlayer(transform.Find("PlayerCameraRoot"));
         }
     }
 }
