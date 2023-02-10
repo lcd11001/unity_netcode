@@ -34,8 +34,10 @@ namespace StarterAssets
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
         [Header("Player punch")]
+        public bool UsePressKeyToPunch = true;
         public bool Punched = false;
         public int PunchCount = 0;
+        public float PunchHand = 0;
         public float PunchTimeout = 1.1f;
 
         [Space(10)]
@@ -95,7 +97,6 @@ namespace StarterAssets
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
-        private float _punchTimeoutDelta;
         private float _fallTimeoutDelta;
 
         // animation IDs
@@ -157,7 +158,6 @@ namespace StarterAssets
 
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
-            _punchTimeoutDelta = PunchTimeout;
             _fallTimeoutDelta = FallTimeout;
         }
 
@@ -172,7 +172,15 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
-            PunchPress();
+
+            if (UsePressKeyToPunch)
+            {
+                PunchPress();
+            }
+            else
+            {
+                PunchHold();
+            }
         }
 
         private void LateUpdate()
@@ -298,6 +306,14 @@ namespace StarterAssets
             }
         }
 
+        private void PunchHold()
+        {
+            Punched = _input.punch;
+            PunchCount = Punched ? 1 : 0;
+
+            Punch();
+        }
+
         private void PunchPress()
         {
             if (_input.punch)
@@ -307,61 +323,27 @@ namespace StarterAssets
                 _input.punch = false;
             }
 
+            Punch();
+        }
+
+        private void Punch()
+        {
             bool isPunching = _animator.GetBool(_animIDPunch);
-            
-            if (Punched)
+            if (PunchCount > 0)
             {
-                // punch timeout
-                if (_punchTimeoutDelta >= 0.0f)
+                if (_hasAnimator && !isPunching)
                 {
-                    _punchTimeoutDelta -= Time.deltaTime;
+                    _animator.SetBool(_animIDPunch, true);
                 }
-                else
-                {
-                    if (_hasAnimator)
-                    {
-                        if (isPunching)
-                        {
-                            _animator.SetFloat(_animIDPunchHand, Mathf.Round(Random.Range(0f, 1f)));
-                        }
-                        else
-                        {
-                            _animator.SetBool(_animIDPunch, true);
-                        }
-                    }
-
-                    // reset the punch timeout timer
-                    _punchTimeoutDelta = PunchTimeout;
-
-                }
-
-                Punched = false;
             }
             else
             {
-                // punch timeout
-                if (_punchTimeoutDelta >= 0.0f)
+                if (_hasAnimator && isPunching)
                 {
-                    _punchTimeoutDelta -= Time.deltaTime;
+                    _animator.SetBool(_animIDPunch, false);
                 }
-                else
-                {
-                    PunchCount = Mathf.Max(PunchCount - 1, 0);
-
-                    if (PunchCount == 0)
-                    {
-                        if (_hasAnimator && isPunching)
-                        {
-                            _animator.SetBool(_animIDPunch, false);
-                        }
-                    }
-                    else
-                    {
-                        Punched = true;
-                    }
-                }
+                Punched = false;
             }
-            
         }
 
         private void JumpAndGravity()
@@ -476,6 +458,22 @@ namespace StarterAssets
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
+        }
+
+        private void OnPunchLeftHandEnd(AnimationEvent animationEvent)
+        {
+            PunchHand = Mathf.Round(Random.Range(0f, 1f));
+            _animator.SetFloat(_animIDPunchHand, PunchHand);
+
+            PunchCount = Mathf.Max(PunchCount - 1, 0);
+        }
+
+        private void OnPunchRightHandEnd(AnimationEvent animationEvent)
+        {
+            PunchHand = Mathf.Round(Random.Range(0f, 1f));
+            _animator.SetFloat(_animIDPunchHand, PunchHand);
+
+            PunchCount = Mathf.Max(PunchCount - 1, 0);
         }
 
         [ServerRpc]
