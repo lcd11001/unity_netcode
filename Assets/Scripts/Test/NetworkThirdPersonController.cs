@@ -161,10 +161,10 @@ namespace StarterAssets
 
         private void Update()
         {
-            //if (!IsOwner)
-            //{
-            //    return;
-            //}
+            if (!IsOwner)
+            {
+                return;
+            }
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
@@ -297,6 +297,12 @@ namespace StarterAssets
 
         private void Punch()
         {
+            if (_input.punch)
+            {
+                Punched = true;
+                _input.punch = false;
+            }
+
             bool isPunching = _animator.GetBool(_animIDPunch);
             if (Punched)
             {
