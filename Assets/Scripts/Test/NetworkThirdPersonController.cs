@@ -33,6 +33,10 @@ namespace StarterAssets
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
+        [Header("Player punch")]
+        public bool Punched = false;
+        public float PunchTimeout = 1.1f;
+
         [Space(10)]
         [Tooltip("The height the player can jump")]
         public float JumpHeight = 1.2f;
@@ -90,12 +94,14 @@ namespace StarterAssets
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
+        private float _punchTimeoutDelta;
         private float _fallTimeoutDelta;
 
         // animation IDs
         private int _animIDSpeed;
         private int _animIDGrounded;
         private int _animIDJump;
+        private int _animIDPunch;
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
 
@@ -123,7 +129,6 @@ namespace StarterAssets
             }
         }
 
-
         private void Awake()
         {
             // get a reference to our main camera
@@ -150,20 +155,22 @@ namespace StarterAssets
 
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
+            _punchTimeoutDelta = PunchTimeout;
             _fallTimeoutDelta = FallTimeout;
         }
 
         private void Update()
         {
-            if (!IsOwner)
-            {
-                return;
-            }
+            //if (!IsOwner)
+            //{
+            //    return;
+            //}
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
             GroundedCheck();
             Move();
+            Punch();
         }
 
         private void LateUpdate()
@@ -176,6 +183,7 @@ namespace StarterAssets
             _animIDSpeed = Animator.StringToHash("Speed");
             _animIDGrounded = Animator.StringToHash("Grounded");
             _animIDJump = Animator.StringToHash("Jump");
+            _animIDPunch = Animator.StringToHash("Punch");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
         }
@@ -284,6 +292,47 @@ namespace StarterAssets
 				_animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
                 //SetAnimSpeedServerRpc(_animationBlend);
                 //SetanimMotionSpeedServerRpc(inputMagnitude);
+            }
+        }
+
+        private void Punch()
+        {
+            bool isPunching = _animator.GetBool(_animIDPunch);
+            if (Punched)
+            {
+                // punch timeout
+                if (_punchTimeoutDelta >= 0.0f)
+                {
+                    _punchTimeoutDelta -= Time.deltaTime;
+                }
+                else
+                {
+                    if (_hasAnimator && !isPunching)
+                    {
+                        _animator.SetBool(_animIDPunch, true);
+                    }
+
+                    // reset the punch timeout timer
+                    _punchTimeoutDelta = PunchTimeout;
+
+                }
+
+                Punched = false;
+            }
+            else
+            {
+                // punch timeout
+                if (_punchTimeoutDelta >= 0.0f)
+                {
+                    _punchTimeoutDelta -= Time.deltaTime;
+                }
+                else
+                {
+                    if (_hasAnimator && isPunching)
+                    {
+                        _animator.SetBool(_animIDPunch, false);
+                    }
+                }
             }
         }
 
