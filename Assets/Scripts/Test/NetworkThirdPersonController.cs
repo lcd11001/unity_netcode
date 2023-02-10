@@ -35,6 +35,7 @@ namespace StarterAssets
 
         [Header("Player punch")]
         public bool Punched = false;
+        public int PunchCount = 0;
         public float PunchTimeout = 1.1f;
 
         [Space(10)]
@@ -102,6 +103,7 @@ namespace StarterAssets
         private int _animIDGrounded;
         private int _animIDJump;
         private int _animIDPunch;
+        private int _animIDPunchHand;
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
 
@@ -170,7 +172,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
-            Punch();
+            PunchPress();
         }
 
         private void LateUpdate()
@@ -184,6 +186,7 @@ namespace StarterAssets
             _animIDGrounded = Animator.StringToHash("Grounded");
             _animIDJump = Animator.StringToHash("Jump");
             _animIDPunch = Animator.StringToHash("Punch");
+            _animIDPunchHand = Animator.StringToHash("PunchHand");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
         }
@@ -295,15 +298,17 @@ namespace StarterAssets
             }
         }
 
-        private void Punch()
+        private void PunchPress()
         {
             if (_input.punch)
             {
                 Punched = true;
+                PunchCount += 1;
                 _input.punch = false;
             }
 
             bool isPunching = _animator.GetBool(_animIDPunch);
+            
             if (Punched)
             {
                 // punch timeout
@@ -313,9 +318,16 @@ namespace StarterAssets
                 }
                 else
                 {
-                    if (_hasAnimator && !isPunching)
+                    if (_hasAnimator)
                     {
-                        _animator.SetBool(_animIDPunch, true);
+                        if (isPunching)
+                        {
+                            _animator.SetFloat(_animIDPunchHand, Mathf.Round(Random.Range(0f, 1f)));
+                        }
+                        else
+                        {
+                            _animator.SetBool(_animIDPunch, true);
+                        }
                     }
 
                     // reset the punch timeout timer
@@ -334,12 +346,22 @@ namespace StarterAssets
                 }
                 else
                 {
-                    if (_hasAnimator && isPunching)
+                    PunchCount = Mathf.Max(PunchCount - 1, 0);
+
+                    if (PunchCount == 0)
                     {
-                        _animator.SetBool(_animIDPunch, false);
+                        if (_hasAnimator && isPunching)
+                        {
+                            _animator.SetBool(_animIDPunch, false);
+                        }
+                    }
+                    else
+                    {
+                        Punched = true;
                     }
                 }
             }
+            
         }
 
         private void JumpAndGravity()

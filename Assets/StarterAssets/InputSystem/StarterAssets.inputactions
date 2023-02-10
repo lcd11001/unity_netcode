@@ -34,9 +34,9 @@
                 },
                 {
                     "name": "Punch",
-                    "type": "Button",
+                    "type": "PassThrough",
                     "id": "0c81a6d3-5ddc-4824-b501-7ec70a03a6ab",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
