@@ -38,7 +38,7 @@ namespace StarterAssets
         public bool Punched = false;
         public int PunchCount = 0;
         public float PunchHand = 0;
-        public float PunchTimeout = 1.1f;
+        public float PunchThreshold = 0.75f;
 
         [Space(10)]
         [Tooltip("The height the player can jump")]
@@ -318,8 +318,14 @@ namespace StarterAssets
         {
             if (_input.punch)
             {
+                // reduce punch count
+                AnimatorStateInfo CurrentClipInfo = _animator.GetCurrentAnimatorStateInfo(0);
+                if (!Punched || CurrentClipInfo.normalizedTime > PunchThreshold)
+                {
+                    PunchCount += 1;
+                }
+
                 Punched = true;
-                PunchCount += 1;
                 _input.punch = false;
             }
 
