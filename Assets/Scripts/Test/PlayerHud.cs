@@ -13,40 +13,28 @@ public class PlayerHud : NetworkBehaviour
     [SerializeField] Slider playerHealth;
     
     [SerializeField]
-    private NetworkVariable<NetworkString> playerName = new NetworkVariable<NetworkString>();
+    private NetworkVariable<NetworkString> networkPlayerName = new NetworkVariable<NetworkString>();
 
-    private const int PlayerMaxHealth = 10;
+    private const int PlayerMaxHealth = 1000;
     [SerializeField]
     private NetworkVariable<int> networkPlayerHealth = new NetworkVariable<int>(PlayerMaxHealth);
 
-    public void OnDamaged(int damged)
+    private void Start()
     {
-        Debug.Log($"[{OwnerClientId}] OnDamaged {damged}");
-
-        int newValue = networkPlayerHealth.Value - damged;
-
-        playerHealth.value = (float)(newValue) / PlayerMaxHealth;
-
-        RequestChangePlayerHealthValueServerRPC(newValue, new ServerRpcParams()
-        {
-            Receive = new ServerRpcReceiveParams()
-            {
-                SenderClientId = OwnerClientId
-            }
-        });
+        networkPlayerHealth.OnValueChanged += OnHealthChange;
     }
 
-    [ServerRpc]
-    public void RequestChangePlayerHealthValueServerRPC(int newValue, ServerRpcParams @params = default)
+    [ServerRpc(RequireOwnership = false)]
+    public void OnDamageServerRpc(int damage, ServerRpcParams rpcParams = default)
     {
-        if (!IsOwner) return;
+        Debug.Log($"OnDamageServerRpc {rpcParams.Receive.SenderClientId}");
+        networkPlayerHealth.Value = Mathf.Max(0, networkPlayerHealth.Value - damage);
+    }
 
-        Debug.Log($"RequestChangePlayerHealthValueServerRPC {@params.Receive.SenderClientId}");
-        //if (@params.Receive.SenderClientId == OwnerClientId)
-        {
-            Debug.Log($"[{OwnerClientId}] On Player Health Change {newValue}");
-            networkPlayerHealth.Value = newValue;
-        }
+    private void OnHealthChange(int previousValue, int newValue)
+    {
+        Debug.Log($"OnHealthChange {previousValue} => {newValue}");
+        playerHealth.value = newValue;
     }
 
     public override void OnNetworkSpawn()
@@ -55,7 +43,8 @@ public class PlayerHud : NetworkBehaviour
 
         if (IsServer)
         {
-            playerName.Value = $"Player {OwnerClientId}";
+            networkPlayerName.Value = $"Player {OwnerClientId}";
+            networkPlayerHealth.Value = PlayerMaxHealth;
         }
 
         //Debug.Log($"PlayerHud::OnNetworkSpawn {OwnerClientId}");
@@ -64,13 +53,15 @@ public class PlayerHud : NetworkBehaviour
 
     private void SetOverlay()
     {
-        playerInfo.text = playerName.Value;
-        playerHealth.value = 1.0f;
+        playerInfo.text = networkPlayerName.Value;
+        playerHealth.value = playerHealth.maxValue = networkPlayerHealth.Value;
     }
 
     private void Update()
     {
-        playerInfo.transform.rotation = Camera.main.transform.rotation;
-        playerHealth.transform.rotation = Camera.main.transform.rotation;
+        //playerInfo.transform.rotation = Camera.main.transform.rotation;
+        //playerHealth.transform.rotation = Camera.main.transform.rotation;
+
+        playerHealth.transform.parent.rotation = Camera.main.transform.rotation;
     }
 }

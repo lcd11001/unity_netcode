@@ -65,27 +65,14 @@ public class PlayerRaycastController : NetworkBehaviour
     private void UpdateHealthServerRPC(int damage, ulong clientId)
     {
         Debug.Log($"Client {clientId} got punch {damage}");
-        NotifyHealthChangedClientRpc(damage, new ClientRpcParams
+        if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
-            Send = new ClientRpcSendParams
+            var client = NetworkManager.Singleton.ConnectedClients[clientId];
+            var hud = client.PlayerObject.GetComponent<PlayerHud>();
+            if (hud != null)
             {
-                TargetClientIds = new ulong[] { clientId }
+                hud.OnDamageServerRpc(damage);
             }
-        });
-    }
-
-    [ClientRpc]
-    public void NotifyHealthChangedClientRpc(int damage, ClientRpcParams @params = default)
-    {
-        if (IsOwner) return;
-
-        //Debug.Log($"NotifyHealthChangedClientRpc {@params.Send.TargetClientIds[0]}");
-
-        //if (@params.Send.TargetClientIds.Count > 0 && @params.Send.TargetClientIds[0] == OwnerClientId)
-        {
-            Debug.Log($"NotifyHealthChangedClientRpc {OwnerClientId} damage {damage}");
-            OnDamged?.Invoke(damage);
         }
-
     }
 }
