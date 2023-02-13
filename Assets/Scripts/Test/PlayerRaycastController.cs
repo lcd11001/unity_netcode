@@ -8,11 +8,6 @@ using UnityEngine.Events;
 
 public class PlayerRaycastController : NetworkBehaviour
 {
-    private const int PlayerMaxHealth = 10;
-
-    [SerializeField]
-    private NetworkVariable<int> networkPlayerHealth = new NetworkVariable<int>(PlayerMaxHealth);
-
     [SerializeField]
     private GameObject leftHand;
 
@@ -25,7 +20,7 @@ public class PlayerRaycastController : NetworkBehaviour
     [SerializeField]
     private LayerMask playerMask;
 
-    public static UnityEvent<int, int, int> OnDamged = new UnityEvent<int, int, int>();
+    public UnityEvent<int> OnDamged;
 
     NetworkThirdPersonController networkThirdPersonController;
     private void Awake()
@@ -69,16 +64,8 @@ public class PlayerRaycastController : NetworkBehaviour
     [ServerRpc]
     private void UpdateHealthServerRPC(int damage, ulong clientId)
     {
-        var client = NetworkManager.Singleton.ConnectedClients[clientId]
-            .PlayerObject.GetComponent<PlayerRaycastController>();
-
-        if (client != null && client.networkPlayerHealth.Value > 0)
-        {
-            client.networkPlayerHealth.Value = Mathf.Max(client.networkPlayerHealth.Value - damage, 0);
-            // execute method on client getting punch
-        }
-
-        NotifyHealthChangedClientRPC(damage, new ClientRpcParams
+        Debug.Log($"Client {clientId} got punch {damage}");
+        NotifyHealthChangedClientRpc(damage, new ClientRpcParams
         {
             Send = new ClientRpcSendParams
             {
@@ -88,11 +75,17 @@ public class PlayerRaycastController : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void NotifyHealthChangedClientRPC(int damage, ClientRpcParams @params = default)
+    public void NotifyHealthChangedClientRpc(int damage, ClientRpcParams @params = default)
     {
-        //if (IsOwner) return;
+        if (IsOwner) return;
 
-        Debug.Log($"Client got punch {damage}");
-        OnDamged?.Invoke(damage, networkPlayerHealth.Value, PlayerMaxHealth);
+        //Debug.Log($"NotifyHealthChangedClientRpc {@params.Send.TargetClientIds[0]}");
+
+        //if (@params.Send.TargetClientIds.Count > 0 && @params.Send.TargetClientIds[0] == OwnerClientId)
+        {
+            Debug.Log($"NotifyHealthChangedClientRpc {OwnerClientId} damage {damage}");
+            OnDamged?.Invoke(damage);
+        }
+
     }
 }
