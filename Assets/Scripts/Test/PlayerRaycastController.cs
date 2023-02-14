@@ -52,12 +52,12 @@ public class PlayerRaycastController : NetworkBehaviour
             var playerHit = hit.transform.GetComponent<NetworkObject>();
             if (playerHit != null)
             {
-                //UpdateHealthServerRPC(1, playerHit.OwnerClientId);
-                var hud = playerHit.GetComponent<PlayerHud>();
-                if (hud != null)
-                {
-                    hud.OnDamage(1);
-                }
+                UpdateHealthServerRPC(1, playerHit.OwnerClientId);
+                //var hud = playerHit.GetComponent<PlayerHud>();
+                //if (hud != null)
+                //{
+                //    hud.OnDamage(1);
+                //}
             }
         }
         else

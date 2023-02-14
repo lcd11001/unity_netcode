@@ -13,8 +13,11 @@ public class TestLobby : CommandBehaviour
 
     [SerializeField]
     private float heartBeatTimerMax = 15f;
-    private float heartBeatTimer;
 
+    [SerializeField]
+    private string playerName;
+
+    private float heartBeatTimer;
     private string playerId;
 
     protected async override void Start()
@@ -22,6 +25,11 @@ public class TestLobby : CommandBehaviour
         base.Start();
 
         heartBeatTimer = heartBeatTimerMax;
+
+        if (string.IsNullOrEmpty(playerName))
+        {
+            playerName = $"LCD{Random.Range(10, 100)}";
+        }
 
         await UnityServices.InitializeAsync();
 
@@ -61,7 +69,19 @@ public class TestLobby : CommandBehaviour
             string lobbyName = "MyLobby";
             int maxPlayers = 4;
 
-            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers);
+            CreateLobbyOptions options = new CreateLobbyOptions 
+            {
+                IsPrivate = false,
+                Player = new Player
+                {
+                    Data = new Dictionary<string, PlayerDataObject> 
+                    {
+                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
+                    }
+                }
+            };
+
+            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
             Debug.Log($"Lobby created [{lobby.Id}] : {lobby.Name} : {lobby.MaxPlayers} : {lobby.LobbyCode}");
 
             hostLobby = lobby;
@@ -81,7 +101,7 @@ public class TestLobby : CommandBehaviour
             Debug.Log($"Lobbies found {response.Results.Count}");
             foreach (var lobby in response.Results)
             {
-                Debug.Log($"{lobby.Name} : {lobby.AvailableSlots}");
+                Debug.Log($"{lobby.Name} : {lobby.AvailableSlots} : {lobby.LobbyCode}");
             }
         }
         catch (LobbyServiceException e)
@@ -152,7 +172,33 @@ public class TestLobby : CommandBehaviour
     {
         try
         {
-            var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code);
+            JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions
+            {
+                Player = new Player
+                {
+                    Data = new Dictionary<string, PlayerDataObject>
+                    {
+                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
+                    }
+                }
+            };
+            var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code, options);
+            Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
+
+            hostLobby = lobby;
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    [Command]
+    private async void QuickJoinLobby()
+    {
+        try
+        {
+            var lobby = await Lobbies.Instance.QuickJoinLobbyAsync();
             Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
             hostLobby = lobby;
@@ -180,5 +226,23 @@ public class TestLobby : CommandBehaviour
         {
             Debug.Log(e);
         }
+    }
+
+    private void ListPlayers(Lobby lobby)
+    {
+        if (lobby != null)
+        {
+            Debug.Log($"Players in lobby {lobby.Name}");
+            foreach (var player in lobby.Players)
+            {
+                Debug.Log($"[{player.Id}] {player.Data["PlayerName"].Value}");
+            }
+        }
+    }
+
+    [Command]
+    private void ListPlayers()
+    {
+        ListPlayers(hostLobby);
     }
 }
