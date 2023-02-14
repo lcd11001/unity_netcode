@@ -128,7 +128,7 @@ public class TestLobby : CommandBehaviour
     {
         try
         {
-            QueryLobbiesOptions options = new QueryLobbiesOptions()
+            QueryLobbiesOptions options = new QueryLobbiesOptions
             {
                 Count = 25,
                 Filters = new List<QueryFilter>
