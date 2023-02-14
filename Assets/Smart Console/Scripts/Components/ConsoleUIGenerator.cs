@@ -23,6 +23,7 @@ namespace SmartConsole.Components
             m_ConsoleSystem.OnSubmitLogMessage += GenerateLog;
             m_ConsoleSystem.OnSubmitAutocompleteLogMessage += GenerateAutocompleteLog;
             m_ConsoleSystem.OnClearAutocomplete += ClearAutocompletes;
+            LogMessageSelection.OnSelectLogMessage += OnClickMessage;
         }
         
         private void OnDisable()
@@ -30,6 +31,7 @@ namespace SmartConsole.Components
             m_ConsoleSystem.OnSubmitLogMessage -= GenerateLog;
             m_ConsoleSystem.OnSubmitAutocompleteLogMessage -= GenerateAutocompleteLog;
             m_ConsoleSystem.OnClearAutocomplete -= ClearAutocompletes;
+            LogMessageSelection.OnSelectLogMessage -= OnClickMessage;
         }
 
         private void OnValidate()
@@ -154,6 +156,19 @@ namespace SmartConsole.Components
             foreach (Transform child in m_GridContent)
             {
                 Destroy(child.gameObject);
+            }
+        }
+
+        private void OnClickMessage(int hash)
+        {
+            for (int i = 0; i < m_AutocompleteInstances.Count; i++)
+            {
+                var message = m_AutocompleteInstances[i];
+                if (message.GetHashCode() == hash)
+                {
+                    m_ConsoleSystem.SetAutocompleteIndex(i);
+                    break;
+                }
             }
         }
     }

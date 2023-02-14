@@ -50,6 +50,15 @@ namespace SmartConsole.Components
         private List<LogMessage> LogMessagesSent = new List<LogMessage>();
         private int m_CurrentAutocompleteIndex;
         private int m_CurrentLogMessageIndexCopied = -1;
+
+        public void SetAutocompleteIndex(int index)
+        {
+            if (index >= 0 && index < AutocompleteLogMessages.Count)
+            {
+                m_CurrentAutocompleteIndex = index;
+                Autocomplete();
+            }
+        }
         
         private void OnEnable()
         {
