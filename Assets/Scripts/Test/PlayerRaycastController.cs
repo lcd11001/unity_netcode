@@ -52,7 +52,12 @@ public class PlayerRaycastController : NetworkBehaviour
             var playerHit = hit.transform.GetComponent<NetworkObject>();
             if (playerHit != null)
             {
-                UpdateHealthServerRPC(1, playerHit.OwnerClientId);
+                //UpdateHealthServerRPC(1, playerHit.OwnerClientId);
+                var hud = playerHit.GetComponent<PlayerHud>();
+                if (hud != null)
+                {
+                    hud.OnDamage(1);
+                }
             }
         }
         else
@@ -65,14 +70,18 @@ public class PlayerRaycastController : NetworkBehaviour
     private void UpdateHealthServerRPC(int damage, ulong clientId)
     {
         Debug.Log($"Client {clientId} got punch {damage}");
+
+        // call ServerRPC without RequireOwnership 
         if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
             var client = NetworkManager.Singleton.ConnectedClients[clientId];
             var hud = client.PlayerObject.GetComponent<PlayerHud>();
             if (hud != null)
             {
-                hud.OnDamageServerRpc(damage);
+                hud.SetDamageServerRpc(damage);
             }
-        }
+        }       
     }
+
+    
 }

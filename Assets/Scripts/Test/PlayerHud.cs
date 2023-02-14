@@ -19,15 +19,31 @@ public class PlayerHud : NetworkBehaviour
     [SerializeField]
     private NetworkVariable<int> networkPlayerHealth = new NetworkVariable<int>(PlayerMaxHealth);
 
+    [SerializeField]
+    private int damageTaken = 0;
+
     private void Start()
     {
         networkPlayerHealth.OnValueChanged += OnHealthChange;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    public void OnDamage(int damage)
+    {
+        Debug.Log($"{OwnerClientId} OnDamage {damage}");
+        NotifyHealthChangedClientRpc(damage);
+    }
+
+    [ServerRpc]
     public void OnDamageServerRpc(int damage, ServerRpcParams rpcParams = default)
     {
         Debug.Log($"OnDamageServerRpc {rpcParams.Receive.SenderClientId}");
+        networkPlayerHealth.Value = Mathf.Max(0, networkPlayerHealth.Value - damage);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetDamageServerRpc(int damage, ServerRpcParams rpcParams = default)
+    {
+        Debug.Log($"SetDamageServerRpc {rpcParams.Receive.SenderClientId}");
         networkPlayerHealth.Value = Mathf.Max(0, networkPlayerHealth.Value - damage);
     }
 
@@ -63,5 +79,13 @@ public class PlayerHud : NetworkBehaviour
         //playerHealth.transform.rotation = Camera.main.transform.rotation;
 
         playerHealth.transform.parent.rotation = Camera.main.transform.rotation;
+    }
+
+    [ClientRpc]
+    private void NotifyHealthChangedClientRpc(int damage, ClientRpcParams rpcParams = default)
+    {
+        if (!IsOwner) return;
+
+        OnDamageServerRpc(damage);
     }
 }
