@@ -15,6 +15,8 @@ public class TestLobby : CommandBehaviour
     private float heartBeatTimerMax = 15f;
     private float heartBeatTimer;
 
+    private string playerId;
+
     protected async override void Start()
     {
         base.Start();
@@ -25,7 +27,8 @@ public class TestLobby : CommandBehaviour
 
         AuthenticationService.Instance.SignedIn += () =>
         {
-            Debug.Log($"Signed in {AuthenticationService.Instance.PlayerId}");
+            playerId = AuthenticationService.Instance.PlayerId;
+            Debug.Log($"Signed in {playerId}");
         };
 
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -78,7 +81,7 @@ public class TestLobby : CommandBehaviour
             Debug.Log($"Lobbies found {response.Results.Count}");
             foreach (var lobby in response.Results)
             {
-                Debug.Log($"{lobby.Name} : {lobby.MaxPlayers}");
+                Debug.Log($"{lobby.Name} : {lobby.AvailableSlots}");
             }
         }
         catch (LobbyServiceException e)
@@ -135,6 +138,8 @@ public class TestLobby : CommandBehaviour
         {
             var lobby = await Lobbies.Instance.JoinLobbyByIdAsync(id);
             Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
+
+            hostLobby = lobby;
         }
         catch (LobbyServiceException e)
         {
@@ -149,6 +154,27 @@ public class TestLobby : CommandBehaviour
         {
             var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code);
             Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
+
+            hostLobby = lobby;
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    [Command]
+    private async void LeaveLobby()
+    {
+        try
+        {
+            if (hostLobby != null && !string.IsNullOrEmpty(playerId))
+            {
+                await LobbyService.Instance.RemovePlayerAsync(hostLobby.Id, playerId);
+                Debug.Log($"player {playerId} has leave lobby {hostLobby.Name}");
+
+                hostLobby = null;
+            }
         }
         catch (LobbyServiceException e)
         {
