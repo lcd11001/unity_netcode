@@ -343,4 +343,31 @@ public class TestLobby : CommandBehaviour
             Debug.Log(e);
         }
     }
+
+    [Command]
+    private async void ChangePlayerName(string newName)
+    {
+        try
+        {
+            if (joinLobby != null)
+            {
+                var lobby = await LobbyService.Instance.UpdatePlayerAsync(joinLobby.Id, playerId, new UpdatePlayerOptions 
+                { 
+                    Data = new Dictionary<string, PlayerDataObject>
+                    {
+                        { TestPlayerData.PLAYER_NAME.GetStringValue(), new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, newName) }
+                    }
+                });
+
+                joinLobby = lobby;
+                playerName = newName;
+
+                Debug.Log($"Player changed  name to {newName}");
+            }
+        }
+        catch(LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
 }
