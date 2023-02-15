@@ -16,9 +16,13 @@ public class TestLobby : CommandBehaviour
     private float heartBeatTimerMax = 15f;
 
     [SerializeField]
+    private float lobbyUpdateTimerMax = 1.5f;
+
+    [SerializeField]
     private string playerName;
 
     private float heartBeatTimer;
+    private float lobbyUpdateTime;
     private string playerId;
 
     protected async override void Start()
@@ -26,6 +30,7 @@ public class TestLobby : CommandBehaviour
         base.Start();
 
         heartBeatTimer = heartBeatTimerMax;
+        lobbyUpdateTime = lobbyUpdateTimerMax;
 
         if (string.IsNullOrEmpty(playerName))
         {
@@ -46,6 +51,7 @@ public class TestLobby : CommandBehaviour
     private void Update()
     {
         HandleLobbyHeartBeat();
+        HandleLobbyPollForUpdate();
     }
 
     private async void HandleLobbyHeartBeat()
@@ -58,6 +64,20 @@ public class TestLobby : CommandBehaviour
                 heartBeatTimer = heartBeatTimerMax;
 
                 await LobbyService.Instance.SendHeartbeatPingAsync(hostLobby.Id);
+            }
+        }
+    }
+
+    private async void HandleLobbyPollForUpdate()
+    {
+        if (joinLobby != null)
+        {
+            lobbyUpdateTime -= Time.deltaTime;
+            if (lobbyUpdateTime < 0f)
+            {
+                lobbyUpdateTime = lobbyUpdateTimerMax;
+
+                joinLobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
             }
         }
     }
