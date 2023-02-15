@@ -70,21 +70,32 @@ public class TestLobby : CommandBehaviour
 
     private async void HandleLobbyPollForUpdate()
     {
-        if (joinLobby != null)
+        try
         {
-            lobbyUpdateTime -= Time.deltaTime;
-            if (lobbyUpdateTime < 0f)
+            if (joinLobby != null)
             {
-                lobbyUpdateTime = lobbyUpdateTimerMax;
-
-                var lobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
-                joinLobby = lobby;
-
-                if (hostLobby == null && lobby.HostId == playerId)
+                lobbyUpdateTime -= Time.deltaTime;
+                if (lobbyUpdateTime < 0f)
                 {
-                    hostLobby = lobby;
-                    Debug.Log($"{playerId} is host now");
+                    lobbyUpdateTime = lobbyUpdateTimerMax;
+
+                    var lobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
+                    joinLobby = lobby;
+
+                    if (hostLobby == null && lobby.HostId == playerId)
+                    {
+                        hostLobby = lobby;
+                        Debug.Log($"{playerId} is host now");
+                    }
                 }
+            }
+        }
+        catch(LobbyServiceException e)
+        {
+            if (e.Reason == LobbyExceptionReason.LobbyNotFound)
+            {
+                Debug.Log($"lobby {joinLobby.Name} : {joinLobby.LobbyCode} has been deleted");
+                joinLobby = null;
             }
         }
     }
@@ -312,7 +323,7 @@ public class TestLobby : CommandBehaviour
         if (lobby != null)
         {
             Debug.Log($"Players in lobby {lobby.Name} game mode {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} map {lobby.Data[TestPlayerData.MAP.GetStringValue()].Value}");
-            
+
             // only member of lobby can get the list of players Data
             foreach (var player in lobby.Players)
             {
@@ -428,6 +439,27 @@ public class TestLobby : CommandBehaviour
             else
             {
                 Debug.Log($"Only host player can change host to other player");
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    [Command]
+    private async void DeleteLobby()
+    {
+        try
+        {
+            if (joinLobby != null && joinLobby.HostId == playerId)
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(joinLobby.Id);
+
+                Debug.Log($"lobby {joinLobby.Name} : {joinLobby.LobbyCode} has been deleted");
+
+                joinLobby = null;
+                hostLobby = null;
             }
         }
         catch (LobbyServiceException e)
