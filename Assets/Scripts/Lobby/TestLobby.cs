@@ -254,7 +254,18 @@ public class TestLobby : CommandBehaviour
     {
         try
         {
-            var lobby = await Lobbies.Instance.QuickJoinLobbyAsync();
+            QuickJoinLobbyOptions options = new QuickJoinLobbyOptions
+            {
+                Player = new Player
+                {
+                    Data = new Dictionary<string, PlayerDataObject>
+                    {
+                        { TestPlayerData.PLAYER_NAME.GetStringValue(), new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
+                    }
+                }
+            };
+
+            var lobby = await Lobbies.Instance.QuickJoinLobbyAsync(options);
             Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
             joinLobby = lobby;
