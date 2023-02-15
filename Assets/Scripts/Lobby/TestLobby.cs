@@ -79,6 +79,12 @@ public class TestLobby : CommandBehaviour
 
                 var lobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
                 joinLobby = lobby;
+
+                if (hostLobby == null && lobby.HostId == playerId)
+                {
+                    hostLobby = lobby;
+                    Debug.Log($"{playerId} is host now");
+                }
             }
         }
     }
@@ -394,6 +400,34 @@ public class TestLobby : CommandBehaviour
             else
             {
                 Debug.Log($"Only host player can kick");
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    [Command]
+    private async void ChangeHost(int index)
+    {
+        try
+        {
+            if (joinLobby != null && joinLobby.HostId == playerId)
+            {
+                var lobby = await LobbyService.Instance.UpdateLobbyAsync(hostLobby.Id, new UpdateLobbyOptions
+                {
+                    HostId = joinLobby.Players[index].Id
+                });
+
+                joinLobby = lobby;
+                hostLobby = lobby.HostId == playerId ? lobby : null;
+
+                Debug.Log($"Change host to player [{index}]");
+            }
+            else
+            {
+                Debug.Log($"Only host player can change host to other player");
             }
         }
         catch (LobbyServiceException e)
