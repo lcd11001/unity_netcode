@@ -76,7 +76,7 @@ public class TestLobby : CommandBehaviour
                 {
                     Data = new Dictionary<string, PlayerDataObject> 
                     {
-                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
+                        { TestPlayerData.PLAYER_NAME.GetStringValue(), new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
                     }
                 }
             };
@@ -178,7 +178,7 @@ public class TestLobby : CommandBehaviour
                 {
                     Data = new Dictionary<string, PlayerDataObject>
                     {
-                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
+                        { TestPlayerData.PLAYER_NAME.GetStringValue(), new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName) }
                     }
                 }
             };
@@ -235,7 +235,7 @@ public class TestLobby : CommandBehaviour
             Debug.Log($"Players in lobby {lobby.Name}");
             foreach (var player in lobby.Players)
             {
-                Debug.Log($"[{player.Id}] {player.Data["PlayerName"].Value}");
+                Debug.Log($"[{player.Id}] {player.Data[TestPlayerData.PLAYER_NAME.GetStringValue()].Value}");
             }
         }
     }
