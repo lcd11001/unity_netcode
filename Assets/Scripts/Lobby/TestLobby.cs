@@ -255,8 +255,9 @@ public class TestLobby : CommandBehaviour
                 await LobbyService.Instance.RemovePlayerAsync(joinLobby.Id, playerId);
                 Debug.Log($"player {playerId} has leave lobby {joinLobby.Name}");
 
-                if (joinLobby == hostLobby)
+                if (hostLobby != null && joinLobby.Id == hostLobby.Id)
                 {
+                    Debug.Log($"close host lobby");
                     hostLobby = null;
                 }
                 joinLobby = null;
