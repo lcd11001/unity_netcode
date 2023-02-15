@@ -77,7 +77,8 @@ public class TestLobby : CommandBehaviour
             {
                 lobbyUpdateTime = lobbyUpdateTimerMax;
 
-                joinLobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
+                var lobby = await LobbyService.Instance.GetLobbyAsync(joinLobby.Id);
+                joinLobby = lobby;
             }
         }
     }
@@ -305,9 +306,11 @@ public class TestLobby : CommandBehaviour
         if (lobby != null)
         {
             Debug.Log($"Players in lobby {lobby.Name} game mode {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} map {lobby.Data[TestPlayerData.MAP.GetStringValue()].Value}");
+            
+            // only member of lobby can get the list of players Data
             foreach (var player in lobby.Players)
             {
-                Debug.Log($"{(player.Id == lobby.HostId ? "*" : " ")} [{player.Id}] {player.Data[TestPlayerData.PLAYER_NAME.GetStringValue()].Value}");
+                Debug.Log($"{(player.Id == lobby.HostId ? "*" : " ")} [{player.Id}] {(player.Data != null ? player.Data[TestPlayerData.PLAYER_NAME.GetStringValue()]?.Value : "")}");
             }
         }
     }
@@ -323,19 +326,19 @@ public class TestLobby : CommandBehaviour
     {
         try
         {
-            if (hostLobby != null)
+            if (joinLobby != null && joinLobby.HostId == playerId)
             {
-                var lobby = await Lobbies.Instance.UpdateLobbyAsync(hostLobby.Id, new UpdateLobbyOptions
+                var lobby = await Lobbies.Instance.UpdateLobbyAsync(joinLobby.Id, new UpdateLobbyOptions
                 {
                     Data = new Dictionary<string, DataObject>
-                {
-                    { TestPlayerData.GAME_MODE.GetStringValue(), new DataObject(DataObject.VisibilityOptions.Public, newGameMode, DataObject.IndexOptions.S1) }
-                }
+                    {
+                        { TestPlayerData.GAME_MODE.GetStringValue(), new DataObject(DataObject.VisibilityOptions.Public, newGameMode, DataObject.IndexOptions.S1) }
+                    }
                 });
 
-                Debug.Log($"lobby {lobby.Name} has changed game mode from {hostLobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} to {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} ");
+                Debug.Log($"lobby {lobby.Name} has changed game mode from {joinLobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} to {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} ");
 
-                hostLobby = lobby;
+                joinLobby = lobby;
             }
         }
         catch (LobbyServiceException e)
@@ -351,8 +354,8 @@ public class TestLobby : CommandBehaviour
         {
             if (joinLobby != null)
             {
-                var lobby = await LobbyService.Instance.UpdatePlayerAsync(joinLobby.Id, playerId, new UpdatePlayerOptions 
-                { 
+                var lobby = await LobbyService.Instance.UpdatePlayerAsync(joinLobby.Id, playerId, new UpdatePlayerOptions
+                {
                     Data = new Dictionary<string, PlayerDataObject>
                     {
                         { TestPlayerData.PLAYER_NAME.GetStringValue(), new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, newName) }
@@ -365,7 +368,35 @@ public class TestLobby : CommandBehaviour
                 Debug.Log($"Player changed  name to {newName}");
             }
         }
-        catch(LobbyServiceException e)
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    [Command]
+    private async void KickPlayer(int index)
+    {
+        try
+        {
+            if (joinLobby != null && joinLobby.HostId == playerId)
+            {
+                bool isHost = joinLobby.Players[index].Id == joinLobby.HostId;
+                await LobbyService.Instance.RemovePlayerAsync(joinLobby.Id, joinLobby.Players[index].Id);
+
+                Debug.Log($"Player [{index}] has been kicked");
+                if (isHost)
+                {
+                    hostLobby = null;
+                    joinLobby = null;
+                }
+            }
+            else
+            {
+                Debug.Log($"Only host player can kick");
+            }
+        }
+        catch (LobbyServiceException e)
         {
             Debug.Log(e);
         }
