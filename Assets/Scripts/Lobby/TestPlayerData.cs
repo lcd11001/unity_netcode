@@ -6,4 +6,8 @@ public enum TestPlayerData
 {
     [StringValue("PlayerName")]
     PLAYER_NAME,
+    [StringValue("GameMode")]
+    GAME_MODE,
+    [StringValue("Map")]
+    MAP,
 }

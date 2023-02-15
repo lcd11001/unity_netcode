@@ -19,8 +19,7 @@ public static class EnumExtension
         FieldInfo fieldInfo = type.GetField(value.ToString());
 
         // Get the stringvalue attributes
-        StringValueAttribute[] attribs = fieldInfo.GetCustomAttributes(
-            typeof(StringValueAttribute), false) as StringValueAttribute[];
+        StringValueAttribute[] attribs = fieldInfo.GetCustomAttributes(typeof(StringValueAttribute), false) as StringValueAttribute[];
 
         // Return the first if there was a match.
         return attribs.Length > 0 ? attribs[0].StringValue : value.ToString();
