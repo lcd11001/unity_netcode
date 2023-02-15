@@ -126,10 +126,10 @@ public class TestLobby : CommandBehaviour
             var response = await Lobbies.Instance.QueryLobbiesAsync(options);
 
             Debug.Log($"Lobbies found {response.Results.Count}");
-            Debug.Log("Name : AvailableSlots : LobbyCode : GAME_MODE : MAP");
+            Debug.Log("ID : Name : AvailableSlots : LobbyCode : GAME_MODE : MAP");
             foreach (var lobby in response.Results)
             {
-                Debug.Log($"{lobby.Name} : {lobby.AvailableSlots} : {lobby.LobbyCode} : {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} : {lobby.Data[TestPlayerData.MAP.GetStringValue()].Value}");
+                Debug.Log($"{lobby.Id} : {lobby.Name} : {lobby.AvailableSlots} : {lobby.LobbyCode} : {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} : {lobby.Data[TestPlayerData.MAP.GetStringValue()].Value}");
             }
         }
         catch (LobbyServiceException e)
@@ -296,7 +296,7 @@ public class TestLobby : CommandBehaviour
             Debug.Log($"Players in lobby {lobby.Name} game mode {lobby.Data[TestPlayerData.GAME_MODE.GetStringValue()].Value} map {lobby.Data[TestPlayerData.MAP.GetStringValue()].Value}");
             foreach (var player in lobby.Players)
             {
-                Debug.Log($"[{player.Id}] {player.Data[TestPlayerData.PLAYER_NAME.GetStringValue()].Value}");
+                Debug.Log($"{(player.Id == lobby.HostId ? "*" : " ")} [{player.Id}] {player.Data[TestPlayerData.PLAYER_NAME.GetStringValue()].Value}");
             }
         }
     }
