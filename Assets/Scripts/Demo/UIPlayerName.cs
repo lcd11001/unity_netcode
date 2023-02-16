@@ -7,31 +7,30 @@ using UnityEngine.UI;
 
 namespace Demo
 {
-    public class UILogin : UIBase<UILogin>
+    public class UIPlayerName : UIBase<UIPlayerName>
     {
-        [SerializeField] Button btnUserName;
-        [SerializeField] Button btnLogin;
+        [SerializeField] Button btnPlayerName;
+        
 
-        private TextMeshProUGUI userName;
+        private TextMeshProUGUI playerName;
 
         protected override void Start()
         {
             base.Start();
 
-            userName = btnUserName.GetComponentInChildren<TextMeshProUGUI>();
+            playerName = btnPlayerName.GetComponentInChildren<TextMeshProUGUI>();
+            LobbyManager.Instance.PlayerProfile.PlayerName = playerName.text;
         }
 
         private void OnEnable()
         {
-            btnUserName.onClick.AddListener(OnUserNameClicked);
-            btnLogin.onClick.AddListener(OnLoginClicked);
+            btnPlayerName.onClick.AddListener(OnUserNameClicked);
             UIDialog.Instance.OnClosed.AddListener(OnDialogClosed);
         }
 
         private void OnDisable()
         {
-            btnUserName.onClick.RemoveListener(OnUserNameClicked);
-            btnLogin.onClick.RemoveListener(OnLoginClicked);
+            btnPlayerName.onClick.RemoveListener(OnUserNameClicked);
             UIDialog.Instance.OnClosed.RemoveListener(OnDialogClosed);
         }
 
@@ -40,7 +39,8 @@ namespace Demo
             Debug.Log($"text {text} isOK {isOK}");
             if (isOK)
             {
-                userName.text = text;
+                playerName.text = text;
+                LobbyManager.Instance.PlayerProfile.PlayerName = text;
             }
         }
 
@@ -50,12 +50,6 @@ namespace Demo
             UIDialog.Instance.SetLabel("User Name:");
             UIDialog.Instance.SetPlaceHolder("Input user name here...");
             UIDialog.Instance.Show();
-        }
-
-        private void OnLoginClicked()
-        {
-            LobbyManager.Instance.Authen(this.userName.text);
-            this.Hide();
         }
     }
 }
