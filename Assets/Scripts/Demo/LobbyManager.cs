@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
@@ -21,6 +22,7 @@ namespace Demo
 
         public UnityEvent<Lobby> OnJoinedLobby;
         public UnityEvent<Lobby> OnJoinedLobbyUpdate;
+
         public UnityEvent<Lobby> OnKickedFromLobby;
         public UnityEvent<Lobby> OnLobbyGameModeChanged;
         
@@ -206,6 +208,50 @@ namespace Demo
 
                 joinedLobby = lobby;
                 OnJoinedLobby?.Invoke(joinedLobby);
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+
+        public async Task<bool> KickPlayer(string playerId)
+        {
+            try
+            {
+                if (IsLobbyHost)
+                {
+                    await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
+
+                    Debug.Log($"Player [{playerId}] has been kicked");
+                    return true;
+                }
+                else
+                {
+                    Debug.Log($"Only host player can kick");
+                }
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+
+            return false;
+        }
+
+        public async void LeaveLobby()
+        {
+            try
+            {
+                if (IsJoinedLobby)
+                {
+                    var playerId = AuthenticationService.Instance.PlayerId;
+                    await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
+                    Debug.Log($"player {playerId} has left lobby {joinedLobby.Name}");
+
+                    joinedLobby = null;
+                    OnLeftLobby?.Invoke();
+                }
             }
             catch (LobbyServiceException e)
             {
