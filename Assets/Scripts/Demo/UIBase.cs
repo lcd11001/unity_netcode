@@ -13,6 +13,9 @@ namespace Demo
         private RectTransform rectTransform;
         private Vector2 originPosition;
 
+        private const string validNumer = "0123456789";
+        private const string validAscii = "abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ";
+
         protected virtual void Start()
         {
             rectTransform = GetComponent<RectTransform>();
@@ -38,6 +41,30 @@ namespace Demo
         {
             root.gameObject.SetActive(false);
             rectTransform.anchoredPosition = originPosition;
+        }
+
+        protected virtual char ValidateChar(string validCharacters, char addedChar)
+        {
+            if (validCharacters.IndexOf(addedChar) != -1)
+            {
+                // Valid
+                return addedChar;
+            }
+            else
+            {
+                // Invalid
+                return '\0';
+            }
+        }
+
+        protected virtual char OnValidNumber(string text, int charIndex, char addedChar)
+        {
+            return ValidateChar(validNumer, addedChar);
+        }
+
+        protected virtual char OnValidAscii(string text, int charIndex, char addedChar)
+        {
+            return ValidateChar(validAscii, addedChar);
         }
     }
 }

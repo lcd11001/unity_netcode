@@ -180,7 +180,7 @@ namespace Demo
             }
         }
 
-        public async void CreateLobby(string lobbyName, int maxPlayers, bool isPrivate, GAME_MODE gameMode)
+        public async void CreateLobby(string lobbyName, int maxPlayers, bool isPrivate, string gameMode)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace Demo
                     },
                     Data = new Dictionary<string, DataObject>
                     {
-                        { LobbyProfile.GAME_MODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, gameMode.ToString(), DataObject.IndexOptions.S1) }
+                        { LobbyProfile.GAME_MODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, gameMode, DataObject.IndexOptions.S1) }
                     }
                 };
 
@@ -233,6 +233,10 @@ public class PlayerProfile
 
 public enum GAME_MODE
 {
+    [StringValue("Global")]
+    GLOBAL,
+
+    [StringValue("Tennis")]
     TENNIS
 }
 
