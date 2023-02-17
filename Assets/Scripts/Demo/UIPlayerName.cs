@@ -36,7 +36,6 @@ namespace Demo
 
         private void OnDialogClosed(string text, bool isOK)
         {
-            Debug.Log($"text {text} isOK {isOK}");
             if (isOK)
             {
                 playerName.text = text;

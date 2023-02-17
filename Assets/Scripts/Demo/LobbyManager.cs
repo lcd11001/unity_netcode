@@ -126,7 +126,7 @@ namespace Demo
 
         private void OnSignedIn()
         {
-            Debug.Log($"{PlayerProfile.Name} signed in");
+            Debug.Log($"{PlayerProfile.Name} signed in with id {AuthenticationService.Instance.PlayerId}");
 
             RefreshLobbyList();
 
@@ -140,13 +140,18 @@ namespace Demo
             UILoading.Instance.Show();
 
             var initOption = new InitializationOptions()
-                .SetOption(nameof(PlayerProfile.NAME_KEY), PlayerProfile.Name);
+                // must use SetProfile to generate difference PlayerId after signed in
+                .SetProfile(PlayerProfile.Name);
 
             await UnityServices.InitializeAsync(initOption);
 
             AuthenticationService.Instance.SignedIn += OnSignedIn;
 
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            var signInOption = new SignInOptions
+            {
+                CreateAccount = true
+            };
+            await AuthenticationService.Instance.SignInAnonymouslyAsync(signInOption);
         }
 
         public async void RefreshLobbyList(string continueToken = null)
@@ -181,7 +186,7 @@ namespace Demo
 
                 var response = await LobbyService.Instance.QueryLobbiesAsync(options);
 
-                Debug.Log($"OnLobbyListChanged {response.Results.Count} {response.ContinuationToken}");
+                Debug.Log($"OnLobbyListChanged {response.Results.Count}");
                 OnLobbyListChanged?.Invoke(response.Results, response.ContinuationToken);
             }
             catch(LobbyServiceException e)
