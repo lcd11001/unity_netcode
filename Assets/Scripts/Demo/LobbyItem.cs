@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using TMPro;
-public class LobbyItem : MonoBehaviour
+using UnityEngine.UI;
+
+public class LobbyItem : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] TextMeshProUGUI lobbyName;
     [SerializeField] TextMeshProUGUI lobbyPlayers;
     [SerializeField] TextMeshProUGUI lobbyGameMode;
+    [SerializeField] Image lobbyBackground;
 
     [field: SerializeField] public string LobbyId { get; set; } = string.Empty;
 
@@ -23,5 +27,15 @@ public class LobbyItem : MonoBehaviour
     public void SetLobbyGameMode(string gameMode)
     {
         lobbyGameMode.text = gameMode;
+    }
+
+    public void SetBackgroundColor(Color c)
+    {
+        lobbyBackground.color = c;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log($"clicked on {LobbyId}");
     }
 }

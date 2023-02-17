@@ -11,9 +11,11 @@ namespace Demo
     {
         [SerializeField] GameObject listItemPrefab;
         [SerializeField] Transform listContainer;
+        [SerializeField] List<Color> listItemColor;
 
         [SerializeField] Button btnCreate;
         [SerializeField] Button btnRefresh;
+
 
         private void OnEnable()
         {
@@ -85,8 +87,9 @@ namespace Demo
 
         private void UpdateLobbyList(List<Lobby> lobbies)
         {
-            foreach(var lobby in lobbies)
+            for(int i=0; i < lobbies.Count; i++)
             {
+                var lobby = lobbies[i];
                 var item = Instantiate(listItemPrefab, listContainer);
                 var lobbyItem = item.GetComponent<LobbyItem>();
                 if (item != null)
@@ -94,6 +97,7 @@ namespace Demo
                     lobbyItem.LobbyId = lobby.Id;
                     lobbyItem.SetLobbyName(lobby.Name);
                     lobbyItem.SetLobbyPlayers($"{lobby.Players.Count} / {lobby.MaxPlayers}");
+                    lobbyItem.SetBackgroundColor(listItemColor[i % listItemColor.Count]);
 
                     if (lobby.Data != null && lobby.Data.ContainsKey(LobbyProfile.GAME_MODE_KEY))
                     {
