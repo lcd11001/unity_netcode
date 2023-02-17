@@ -10,11 +10,14 @@ using UnityEngine.Events;
 
 namespace Demo
 {
+    [DefaultExecutionOrder(-999)]
     public class LobbyManager : MonoBehaviourSingletonPersistent<LobbyManager>
     {
         [SerializeField] float heartbeatTimerMax = 15f;
         [SerializeField] float lobbyPollTimerMax = 1.5f;
         [SerializeField] float refreshLobbyListTimerMax = 5f;
+
+        public UnityEvent OnAuthenSignedIn;
 
         public UnityEvent<Lobby> OnJoinedLobby;
         public UnityEvent<Lobby> OnJoinedLobbyUpdate;
@@ -76,7 +79,7 @@ namespace Demo
 
                     if (!IsPlayerInLooby)
                     {
-                        Debug.Log($"{PlayerProfile.PlayerName} has been kicked from lobby");
+                        Debug.Log($"{PlayerProfile.Name} has been kicked from lobby");
                         OnKickedFromLobby?.Invoke(joinedLobby);
                         joinedLobby = null;
                     }
@@ -97,7 +100,7 @@ namespace Demo
             }
         }
 
-        private async void HandleRefreshLobbyList()
+        private void HandleRefreshLobbyList()
         {
             if (UnityServices.State == ServicesInitializationState.Initialized && AuthenticationService.Instance.IsSignedIn)
             {
@@ -113,11 +116,13 @@ namespace Demo
 
         private void OnSignedIn()
         {
-            Debug.Log($"{PlayerProfile.PlayerName} signed in");
+            Debug.Log($"{PlayerProfile.Name} signed in");
 
             RefreshLobbyList();
 
             UILoading.Instance.Hide();
+
+            OnAuthenSignedIn?.Invoke();
         }
 
         public async void Authen()
@@ -125,7 +130,7 @@ namespace Demo
             UILoading.Instance.Show();
 
             var initOption = new InitializationOptions()
-                .SetOption(nameof(PlayerProfile.PlayerName), PlayerProfile.PlayerName);
+                .SetOption(nameof(PlayerProfile.NAME_KEY), PlayerProfile.Name);
 
             await UnityServices.InitializeAsync(initOption);
 
@@ -166,6 +171,7 @@ namespace Demo
 
                 var response = await LobbyService.Instance.QueryLobbiesAsync(options);
 
+                Debug.Log($"OnLobbyListChanged {response.Results.Count} {response.ContinuationToken}");
                 OnLobbyListChanged?.Invoke(response.Results, response.ContinuationToken);
             }
             catch(LobbyServiceException e)
@@ -173,11 +179,66 @@ namespace Demo
                 Debug.Log(e);
             }
         }
+
+        public async void CreateLobby(string lobbyName, int maxPlayers, bool isPrivate, GAME_MODE gameMode)
+        {
+            try
+            {
+                CreateLobbyOptions options = new CreateLobbyOptions
+                {
+                    IsPrivate = isPrivate,
+                    Player = new Player
+                    {
+                        Data = new Dictionary<string, PlayerDataObject>
+                        {
+                            { PlayerProfile.NAME_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Name) },
+                            { PlayerProfile.AVATAR_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Avatar.ToString()) }
+                        }
+                    },
+                    Data = new Dictionary<string, DataObject>
+                    {
+                        { LobbyProfile.GAME_MODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, gameMode.ToString(), DataObject.IndexOptions.S1) }
+                    }
+                };
+
+                Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
+                Debug.Log($"Lobby created [{lobby.Id}] : {lobby.Name} : {lobby.MaxPlayers} : {lobby.LobbyCode}");
+
+                joinedLobby = lobby;
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
     }
 }
+
+public enum AVATAR_TYPE
+{
+    ONE,
+    TWO
+};
 
 [Serializable]
 public class PlayerProfile
 {
-    public string PlayerName;
+    public string Name;
+    public AVATAR_TYPE Avatar;
+
+    public static string NAME_KEY => nameof(Name);
+    public static string AVATAR_KEY => nameof(Avatar);
+}
+
+public enum GAME_MODE
+{
+    TENNIS
+}
+
+[Serializable]
+public class LobbyProfile
+{
+    public GAME_MODE Mode;
+
+    public static string GAME_MODE_KEY => nameof(Mode);
 }
