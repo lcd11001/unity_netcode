@@ -28,18 +28,26 @@ namespace Demo
                 new TMP_Dropdown.OptionData(GAME_MODE.GLOBAL.GetStringValue()),
                 new TMP_Dropdown.OptionData(GAME_MODE.TENNIS.GetStringValue())
             });
+
         }
 
         private void OnEnable()
         {
             btnCreate.onClick.AddListener(OnCreateLobby);
+            chkPrivate.onValueChanged.AddListener(OnPrivateChanged);
             LobbyManager.Instance.OnJoinedLobby.AddListener(OnJoinedLobby);
         }
 
         private void OnDisable()
         {
             btnCreate.onClick.RemoveListener(OnCreateLobby);
+            chkPrivate.onValueChanged.RemoveListener(OnPrivateChanged);
             LobbyManager.Instance.OnJoinedLobby.RemoveListener(OnJoinedLobby);
+        }
+
+        private void OnPrivateChanged(bool isPrivate)
+        {
+            chkPrivate.GetComponentInChildren<Text>().text = isPrivate ? "YES" : "NO";
         }
 
         private void OnJoinedLobby(Lobby lobby)
