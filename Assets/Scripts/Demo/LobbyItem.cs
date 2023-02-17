@@ -5,37 +5,49 @@ using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.UI;
 
-public class LobbyItem : MonoBehaviour, IPointerClickHandler
+namespace Demo
 {
-    [SerializeField] TextMeshProUGUI lobbyName;
-    [SerializeField] TextMeshProUGUI lobbyPlayers;
-    [SerializeField] TextMeshProUGUI lobbyGameMode;
-    [SerializeField] Image lobbyBackground;
-
-    [field: SerializeField] public string LobbyId { get; set; } = string.Empty;
-
-    public void SetLobbyName(string name)
+    public class LobbyItem : MonoBehaviour, IPointerClickHandler
     {
-        lobbyName.text = name;
-    }
+        [SerializeField] TextMeshProUGUI lobbyName;
+        [SerializeField] TextMeshProUGUI lobbyPlayers;
+        [SerializeField] TextMeshProUGUI lobbyGameMode;
+        [SerializeField] Image lobbyBackground;
 
-    public void SetLobbyPlayers(string players)
-    {
-        lobbyPlayers.text = players;
-    }
+        [field: SerializeField] public string LobbyId { get; set; } = string.Empty;
 
-    public void SetLobbyGameMode(string gameMode)
-    {
-        lobbyGameMode.text = gameMode;
-    }
+        public void SetLobbyName(string name)
+        {
+            lobbyName.text = name;
+        }
 
-    public void SetBackgroundColor(Color c)
-    {
-        lobbyBackground.color = c;
-    }
+        public void SetLobbyPlayers(string players)
+        {
+            lobbyPlayers.text = players;
+        }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        Debug.Log($"clicked on {LobbyId}");
+        public void SetLobbyGameMode(string gameMode)
+        {
+            lobbyGameMode.text = gameMode;
+        }
+
+        public void SetBackgroundColor(Color c)
+        {
+            lobbyBackground.color = c;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            int clickCount = eventData.clickCount;
+            if (clickCount == 1)
+            {
+                Debug.Log($"Clicked on lobby {LobbyId}");
+            }
+            else if (clickCount == 2)
+            {
+                Debug.Log($"Joinning in lobby {LobbyId}...");
+                LobbyManager.Instance.JoinLobbyById(LobbyId);
+            }
+        }
     }
 }

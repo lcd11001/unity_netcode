@@ -60,6 +60,14 @@ namespace Demo
             }
         }
 
+        private Dictionary<string, PlayerDataObject> GetPlayerData()
+        {
+            return new Dictionary<string, PlayerDataObject>
+            {
+                { PlayerProfile.NAME_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Name) },
+                { PlayerProfile.AVATAR_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Avatar.ToString()) }
+            };
+        }
         private void Update()
         {
             //HandleRefreshLobbyList();
@@ -191,11 +199,7 @@ namespace Demo
                     IsPrivate = isPrivate,
                     Player = new Player
                     {
-                        Data = new Dictionary<string, PlayerDataObject>
-                        {
-                            { PlayerProfile.NAME_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Name) },
-                            { PlayerProfile.AVATAR_KEY, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerProfile.Avatar.ToString()) }
-                        }
+                        Data = GetPlayerData()
                     },
                     Data = new Dictionary<string, DataObject>
                     {
@@ -252,6 +256,52 @@ namespace Demo
                     joinedLobby = null;
                     OnLeftLobby?.Invoke();
                 }
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+
+        public async void JoinLobbyById(string id)
+        {
+            try
+            {
+                JoinLobbyByIdOptions options = new JoinLobbyByIdOptions
+                {
+                    Player = new Player
+                    {
+                        Data = GetPlayerData()
+                    }
+                };
+                var lobby = await LobbyService.Instance.JoinLobbyByIdAsync(id, options);
+                Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
+
+                joinedLobby = lobby;
+                OnJoinedLobby?.Invoke(joinedLobby);
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+
+        public async void JoinLobbyByCode(string code)
+        {
+            try
+            {
+                JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions
+                {
+                    Player = new Player
+                    {
+                        Data = GetPlayerData()
+                    }
+                };
+                var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code, options);
+                Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
+
+                joinedLobby = lobby;
+                OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
             {

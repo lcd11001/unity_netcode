@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,7 @@ namespace Demo
             LobbyManager.Instance.OnJoinedLobby.AddListener(OnJoinedLobby);
             LobbyManager.Instance.OnJoinedLobbyUpdate.AddListener(OnJoinedLobbyUpdate);
             LobbyManager.Instance.OnLeftLobby.AddListener(OnLeftLobby);
+            LobbyManager.Instance.OnKickedFromLobby.AddListener(OnKickedFromLobby);
         }
 
         private void OnDisable()
@@ -30,6 +32,7 @@ namespace Demo
             LobbyManager.Instance.OnJoinedLobby.RemoveListener(OnJoinedLobby);
             LobbyManager.Instance.OnJoinedLobbyUpdate.RemoveListener(OnJoinedLobbyUpdate);
             LobbyManager.Instance.OnLeftLobby.RemoveListener(OnLeftLobby);
+            LobbyManager.Instance.OnKickedFromLobby.RemoveListener(OnKickedFromLobby);
         }
 
         private void OnStartGame()
@@ -47,6 +50,11 @@ namespace Demo
             Hide();
         }
 
+        private void OnKickedFromLobby(Lobby lobby)
+        {
+            Hide();
+        }
+
         private void OnJoinedLobbyUpdate(Lobby lobby)
         {
             ClearPlayerList();
@@ -55,6 +63,7 @@ namespace Demo
 
         private void OnJoinedLobby(Lobby lobby)
         {
+            ClearPlayerList();
             this.Show();
             RefreshPlayerList(lobby);
         }
@@ -67,9 +76,9 @@ namespace Demo
                 {
                     var item = Instantiate(playerItemPrefab, listContainer);
                     var playerItem = item.GetComponent<LobbyPlayerItem>();
-
+                    var isMe = player.Id == AuthenticationService.Instance.PlayerId;
                     playerItem.PlayerId = player.Id;
-                    playerItem.EnableKickButton (player.Id != lobby.HostId);
+                    playerItem.EnableKickButton (LobbyManager.Instance.IsLobbyHost && !isMe);
                     if (player.Data != null)
                     {
                         if (player.Data.ContainsKey(PlayerProfile.NAME_KEY))
