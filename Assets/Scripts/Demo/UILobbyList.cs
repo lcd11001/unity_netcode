@@ -48,7 +48,7 @@ namespace Demo
 
         private void OnCreateLobby()
         {
-            LobbyManager.Instance.CreateLobby("test", UnityEngine.Random.Range(2, 10), false, GAME_MODE.TENNIS);
+            UICreateLobby.Instance.Show();
         }
 
         private void OnAuthenSignedIn()

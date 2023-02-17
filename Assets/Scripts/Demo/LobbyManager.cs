@@ -205,6 +205,7 @@ namespace Demo
                 Debug.Log($"Lobby created [{lobby.Id}] : {lobby.Name} : {lobby.MaxPlayers} : {lobby.LobbyCode}");
 
                 joinedLobby = lobby;
+                OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
             {
