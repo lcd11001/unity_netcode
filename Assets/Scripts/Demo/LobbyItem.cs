@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Demo
 {
-    public class LobbyItem : MonoBehaviour, IPointerClickHandler
+    public class LobbyItem : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     {
         [SerializeField] TextMeshProUGUI lobbyName;
         [SerializeField] TextMeshProUGUI lobbyPlayers;
@@ -48,6 +48,18 @@ namespace Demo
                 Debug.Log($"Joinning in lobby {LobbyId}...");
                 LobbyManager.Instance.JoinLobbyById(LobbyId);
             }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            // Unity C# Tutorial - Fix IPointerClickHandler Not Working
+            // https://www.youtube.com/watch?v=WZQEDYvqsEQ&ab_channel=AnyRPG
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            // Unity C# Tutorial - Fix IPointerClickHandler Not Working
+            // https://www.youtube.com/watch?v=WZQEDYvqsEQ&ab_channel=AnyRPG
         }
     }
 }
