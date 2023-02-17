@@ -14,7 +14,7 @@ namespace Demo
     {
         [SerializeField] float heartbeatTimerMax = 15f;
         [SerializeField] float lobbyPollTimerMax = 1.5f;
-        [SerializeField] float refreshLobbyListTimerMax = 1.5f;
+        [SerializeField] float refreshLobbyListTimerMax = 5f;
 
         public UnityEvent<Lobby> OnJoinedLobby;
         public UnityEvent<Lobby> OnJoinedLobbyUpdate;
