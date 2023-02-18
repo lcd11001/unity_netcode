@@ -25,16 +25,19 @@ namespace Demo
 
         public UnityEvent<Lobby> OnKickedFromLobby;
         public UnityEvent<Lobby> OnLobbyGameModeChanged;
-        
+
         public UnityEvent OnLeftLobby;
 
         public UnityEvent<List<Lobby>, string> OnLobbyListChanged;
 
+        public UnityEvent<bool> OnGameStarted;
 
         private Lobby joinedLobby;
         private float heartbeatTimer;
         private float lobbyPollTimer;
         private float refreshLobbyListTimer;
+
+        private string relayCode;
 
         public PlayerProfile PlayerProfile { get; private set; } = new PlayerProfile();
 
@@ -47,11 +50,30 @@ namespace Demo
             {
                 if (joinedLobby != null && joinedLobby.Players != null)
                 {
-                    foreach(var player in joinedLobby.Players)
+                    foreach (var player in joinedLobby.Players)
                     {
                         if (player.Id == AuthenticationService.Instance.PlayerId)
                         {
                             // this player in lobby
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        public bool IsReceivedRelayCode
+        {
+            get
+            {
+                if (IsJoinedLobby)
+                {
+                    if (joinedLobby.Data != null && joinedLobby.Data.ContainsKey(LobbyProfile.RELAY_JOIN_CODE_KEY))
+                    {
+                        relayCode = joinedLobby.Data[LobbyProfile.RELAY_JOIN_CODE_KEY].Value;
+                        if (!string.IsNullOrEmpty(relayCode))
+                        {
                             return true;
                         }
                     }
@@ -91,6 +113,19 @@ namespace Demo
                     {
                         Debug.Log($"{PlayerProfile.Name} has been kicked from lobby");
                         OnKickedFromLobby?.Invoke(joinedLobby);
+                        joinedLobby = null;
+                    }
+
+                    if (IsReceivedRelayCode)
+                    {
+                        // start game
+                        if (!IsLobbyHost)
+                        {
+                            // lobby host already joined relay
+                            await RelayManager.Instance.JoinRelay(relayCode);
+                        }
+
+                        OnGameStarted?.Invoke(IsLobbyHost);
                         joinedLobby = null;
                     }
                 }
@@ -189,7 +224,7 @@ namespace Demo
                 Debug.Log($"OnLobbyListChanged {response.Results.Count}");
                 OnLobbyListChanged?.Invoke(response.Results, response.ContinuationToken);
             }
-            catch(LobbyServiceException e)
+            catch (LobbyServiceException e)
             {
                 Debug.Log(e);
             }
@@ -208,7 +243,8 @@ namespace Demo
                     },
                     Data = new Dictionary<string, DataObject>
                     {
-                        { LobbyProfile.GAME_MODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, gameMode, DataObject.IndexOptions.S1) }
+                        { LobbyProfile.GAME_MODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, gameMode, DataObject.IndexOptions.S1) },
+                        { LobbyProfile.RELAY_JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, "", DataObject.IndexOptions.S2) }
                     }
                 };
 
@@ -313,6 +349,35 @@ namespace Demo
                 Debug.Log(e);
             }
         }
+
+        public async void StartGame()
+        {
+            try
+            {
+                if (IsLobbyHost)
+                {
+                    string relayCode = await RelayManager.Instance.CreateRelay(joinedLobby.MaxPlayers);
+
+                    Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
+                    {
+                        Data = new Dictionary<string, DataObject>
+                        {
+                            {  LobbyProfile.RELAY_JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayCode, DataObject.IndexOptions.S2) }
+                        }
+                    });
+
+                    joinedLobby = lobby;
+                }
+                else
+                {
+                    Debug.Log($"Only host player can start game");
+                }
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
     }
 }
 
@@ -345,6 +410,7 @@ public enum GAME_MODE
 public class LobbyProfile
 {
     public GAME_MODE Mode;
-
+    public string RelayJoinCode;
     public static string GAME_MODE_KEY => nameof(Mode);
+    public static string RELAY_JOIN_CODE_KEY => nameof(RelayJoinCode);
 }

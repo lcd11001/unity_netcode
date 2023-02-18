@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -17,30 +18,36 @@ namespace Demo
 
         private void OnEnable()
         {
-            btnBack.onClick.AddListener(OnExitLobby);
-            btnStart.onClick.AddListener(OnStartGame);
+            btnBack.onClick.AddListener(OnExitLobbyClicked);
+            btnStart.onClick.AddListener(OnStartGameClicked);
+
             LobbyManager.Instance.OnJoinedLobby.AddListener(OnJoinedLobby);
             LobbyManager.Instance.OnJoinedLobbyUpdate.AddListener(OnJoinedLobbyUpdate);
             LobbyManager.Instance.OnLeftLobby.AddListener(OnLeftLobby);
             LobbyManager.Instance.OnKickedFromLobby.AddListener(OnKickedFromLobby);
+
+            LobbyManager.Instance.OnGameStarted.AddListener(OnGameStarted);
         }
 
         private void OnDisable()
         {
-            btnBack.onClick.RemoveListener(OnExitLobby);
-            btnStart.onClick.RemoveListener(OnStartGame);
+            btnBack.onClick.RemoveListener(OnExitLobbyClicked);
+            btnStart.onClick.RemoveListener(OnStartGameClicked);
+
             LobbyManager.Instance.OnJoinedLobby.RemoveListener(OnJoinedLobby);
             LobbyManager.Instance.OnJoinedLobbyUpdate.RemoveListener(OnJoinedLobbyUpdate);
             LobbyManager.Instance.OnLeftLobby.RemoveListener(OnLeftLobby);
             LobbyManager.Instance.OnKickedFromLobby.RemoveListener(OnKickedFromLobby);
+
+            LobbyManager.Instance.OnGameStarted.RemoveListener(OnGameStarted);
         }
 
-        private void OnStartGame()
+        private void OnStartGameClicked()
         {
-            Debug.Log("OnStartGame");
+            LobbyManager.Instance.StartGame();
         }
 
-        private void OnExitLobby()
+        private void OnExitLobbyClicked()
         {
             LobbyManager.Instance.LeaveLobby();
         }
@@ -66,6 +73,19 @@ namespace Demo
             ClearPlayerList();
             this.Show();
             RefreshPlayerList(lobby);
+        }
+
+        private void OnGameStarted(bool isHost)
+        {
+            this.Hide();
+            if (isHost)
+            {
+                NetworkManager.Singleton.StartHost();
+            }
+            else
+            {
+                NetworkManager.Singleton.StartClient();
+            }
         }
 
         private void RefreshPlayerList(Lobby lobby)
