@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Relay;
@@ -34,14 +35,18 @@ public class TestRelay : CommandBehaviour
 
             Debug.Log($"joinCode {joinCode}");
 
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
-                ipAddress: allocation.RelayServer.IpV4,
-                port: (ushort)allocation.RelayServer.Port,
-                allocationId: allocation.AllocationIdBytes,
-                key: allocation.Key,
-                connectionData: allocation.ConnectionData,
-                isSecure: false
-            );
+            //NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
+            //    ipAddress: allocation.RelayServer.IpV4,
+            //    port: (ushort)allocation.RelayServer.Port,
+            //    allocationId: allocation.AllocationIdBytes,
+            //    key: allocation.Key,
+            //    connectionData: allocation.ConnectionData,
+            //    isSecure: false
+            //);
+
+            RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+
             NetworkManager.Singleton.StartHost();
         }
         catch (RelayServiceException e)
@@ -58,15 +63,19 @@ public class TestRelay : CommandBehaviour
             JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             Debug.Log($"Joined relay successfull with code {joinCode} ");
 
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
-                ipAddress: allocation.RelayServer.IpV4,
-                port: (ushort)allocation.RelayServer.Port,
-                allocationId: allocation.AllocationIdBytes,
-                key: allocation.Key,
-                connectionData: allocation.ConnectionData,
-                hostConnectionData: allocation.HostConnectionData, // <= client
-                isSecure: false
-            );
+            //NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
+            //    ipAddress: allocation.RelayServer.IpV4,
+            //    port: (ushort)allocation.RelayServer.Port,
+            //    allocationId: allocation.AllocationIdBytes,
+            //    key: allocation.Key,
+            //    connectionData: allocation.ConnectionData,
+            //    hostConnectionData: allocation.HostConnectionData, // <= client
+            //    isSecure: false
+            //);
+
+            RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+
             NetworkManager.Singleton.StartClient();
         }
         catch (RelayServiceException e)
