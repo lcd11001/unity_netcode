@@ -26,12 +26,21 @@ namespace Demo
         {
             btnPlayerName.onClick.AddListener(OnUserNameClicked);
             UIDialog.Instance.OnClosed.AddListener(OnDialogClosed);
+
+            LobbyManager.Instance.OnAuthenSignedIn.AddListener(OnAuthenSignedIn);
         }
 
         private void OnDisable()
         {
             btnPlayerName.onClick.RemoveListener(OnUserNameClicked);
             UIDialog.Instance.OnClosed.RemoveListener(OnDialogClosed);
+
+            LobbyManager.Instance.OnAuthenSignedIn.RemoveListener(OnAuthenSignedIn);
+        }
+
+        private void OnAuthenSignedIn()
+        {
+            this.Hide();
         }
 
         private void OnDialogClosed(string text, bool isOK)
