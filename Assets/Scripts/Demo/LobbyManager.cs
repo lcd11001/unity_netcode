@@ -36,7 +36,6 @@ namespace Demo
         private float heartbeatTimer;
         private float lobbyPollTimer;
         private float refreshLobbyListTimer;
-        private System.Object threadLocker = new System.Object();
 
         public bool IsGameHost { get; private set; } = true;
 
@@ -85,14 +84,6 @@ namespace Demo
             }
         }
 
-        private void UpdateJoinLobby(Lobby lobby)
-        {
-            lock(threadLocker)
-            {
-                joinedLobby = lobby;
-            }
-        }
-
         private Dictionary<string, PlayerDataObject> GetPlayerData()
         {
             return new Dictionary<string, PlayerDataObject>
@@ -103,12 +94,9 @@ namespace Demo
         }
         private void Update()
         {
-            lock (threadLocker)
-            {
-                //HandleRefreshLobbyList();
-                HandleLobbyHeartBeat();
-                HandleLobbyPolling();
-            }
+            //HandleRefreshLobbyList();
+            HandleLobbyHeartBeat();
+            HandleLobbyPolling();
         }
 
         private async void HandleLobbyPolling()
@@ -120,7 +108,7 @@ namespace Demo
                 {
                     lobbyPollTimer = lobbyPollTimerMax;
                     var lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
-                    UpdateJoinLobby(lobby);
+                    joinedLobby = lobby;
 
                     if (IsReceivedRelayCode)
                     {
@@ -133,14 +121,14 @@ namespace Demo
                         }
 
                         OnGameStarted?.Invoke(IsGameHost);
-                        UpdateJoinLobby(null);
+                        joinedLobby = null;
                     }
 
                     else if (!IsPlayerInLooby)
                     {
                         Debug.Log($"{PlayerProfile.Name} has been kicked from lobby");
                         OnKickedFromLobby?.Invoke(joinedLobby);
-                        UpdateJoinLobby(null);
+                        joinedLobby = null;
                     }
 
                     OnJoinedLobbyUpdate?.Invoke(joinedLobby);
@@ -267,7 +255,7 @@ namespace Demo
                 Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
                 Debug.Log($"Lobby created [{lobby.Id}] : {lobby.Name} : {lobby.MaxPlayers} : {lobby.LobbyCode}");
 
-                UpdateJoinLobby(lobby);
+                joinedLobby = lobby;
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -307,10 +295,10 @@ namespace Demo
                 if (IsJoinedLobby)
                 {
                     var playerId = AuthenticationService.Instance.PlayerId;
-                    await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
                     Debug.Log($"player {playerId} has left lobby {joinedLobby.Name}");
+                    await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
 
-                    UpdateJoinLobby(null);
+                    joinedLobby = null;
                     OnLeftLobby?.Invoke();
                 }
             }
@@ -334,7 +322,7 @@ namespace Demo
                 var lobby = await LobbyService.Instance.JoinLobbyByIdAsync(id, options);
                 Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
-                UpdateJoinLobby(lobby);
+                joinedLobby = lobby;
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -357,7 +345,7 @@ namespace Demo
                 var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code, options);
                 Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
-                UpdateJoinLobby(lobby);
+                joinedLobby = lobby;
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -382,7 +370,8 @@ namespace Demo
                         }
                     });
 
-                    UpdateJoinLobby(lobby);
+                    joinedLobby = lobby;
+                    Debug.Log($"Starting ... game with relay code {relayCode}");
                 }
                 else
                 {
