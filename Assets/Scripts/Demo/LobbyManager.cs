@@ -36,6 +36,7 @@ namespace Demo
         private float heartbeatTimer;
         private float lobbyPollTimer;
         private float refreshLobbyListTimer;
+        private System.Object threadLocker = new System.Object();
 
         public bool IsGameHost { get; private set; } = true;
 
@@ -84,6 +85,14 @@ namespace Demo
             }
         }
 
+        private void UpdateJoinLobby(Lobby lobby)
+        {
+            lock(threadLocker)
+            {
+                joinedLobby = lobby;
+            }
+        }
+
         private Dictionary<string, PlayerDataObject> GetPlayerData()
         {
             return new Dictionary<string, PlayerDataObject>
@@ -94,9 +103,12 @@ namespace Demo
         }
         private void Update()
         {
-            //HandleRefreshLobbyList();
-            HandleLobbyHeartBeat();
-            HandleLobbyPolling();
+            lock (threadLocker)
+            {
+                //HandleRefreshLobbyList();
+                HandleLobbyHeartBeat();
+                HandleLobbyPolling();
+            }
         }
 
         private async void HandleLobbyPolling()
@@ -107,7 +119,8 @@ namespace Demo
                 if (lobbyPollTimer < 0)
                 {
                     lobbyPollTimer = lobbyPollTimerMax;
-                    joinedLobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+                    var lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+                    UpdateJoinLobby(lobby);
 
                     if (IsReceivedRelayCode)
                     {
@@ -120,14 +133,14 @@ namespace Demo
                         }
 
                         OnGameStarted?.Invoke(IsGameHost);
-                        joinedLobby = null;
+                        UpdateJoinLobby(null);
                     }
 
                     else if (!IsPlayerInLooby)
                     {
                         Debug.Log($"{PlayerProfile.Name} has been kicked from lobby");
                         OnKickedFromLobby?.Invoke(joinedLobby);
-                        joinedLobby = null;
+                        UpdateJoinLobby(null);
                     }
 
                     OnJoinedLobbyUpdate?.Invoke(joinedLobby);
@@ -254,7 +267,7 @@ namespace Demo
                 Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
                 Debug.Log($"Lobby created [{lobby.Id}] : {lobby.Name} : {lobby.MaxPlayers} : {lobby.LobbyCode}");
 
-                joinedLobby = lobby;
+                UpdateJoinLobby(lobby);
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -297,7 +310,7 @@ namespace Demo
                     await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
                     Debug.Log($"player {playerId} has left lobby {joinedLobby.Name}");
 
-                    joinedLobby = null;
+                    UpdateJoinLobby(null);
                     OnLeftLobby?.Invoke();
                 }
             }
@@ -321,7 +334,7 @@ namespace Demo
                 var lobby = await LobbyService.Instance.JoinLobbyByIdAsync(id, options);
                 Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
-                joinedLobby = lobby;
+                UpdateJoinLobby(lobby);
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -344,7 +357,7 @@ namespace Demo
                 var lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(code, options);
                 Debug.Log($"Joined to lobby {lobby.Name} : {lobby.AvailableSlots}");
 
-                joinedLobby = lobby;
+                UpdateJoinLobby(lobby);
                 OnJoinedLobby?.Invoke(joinedLobby);
             }
             catch (LobbyServiceException e)
@@ -369,7 +382,7 @@ namespace Demo
                         }
                     });
 
-                    joinedLobby = lobby;
+                    UpdateJoinLobby(lobby);
                 }
                 else
                 {

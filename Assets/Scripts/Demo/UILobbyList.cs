@@ -63,7 +63,9 @@ namespace Demo
 
         private void OnLeftLobby()
         {
+            ClearLobbiesList();
             this.Show();
+            LobbyManager.Instance.RefreshLobbyList();
         }
 
         private void OnJoinedLobby(Lobby lobby)

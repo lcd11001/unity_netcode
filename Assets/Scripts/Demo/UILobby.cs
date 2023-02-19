@@ -67,6 +67,12 @@ namespace Demo
         {
             ClearPlayerList();
             RefreshPlayerList(lobby);
+            UpdateHostLobby();
+        }
+
+        private void UpdateHostLobby()
+        {
+            btnStart.gameObject.SetActive(LobbyManager.Instance.IsLobbyHost);
         }
 
         private void OnJoinedLobby(Lobby lobby)
