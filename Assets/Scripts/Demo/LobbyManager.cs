@@ -37,12 +37,14 @@ namespace Demo
         private float lobbyPollTimer;
         private float refreshLobbyListTimer;
 
-        private string relayCode;
+        public bool IsGameHost { get; private set; } = true;
 
         public PlayerProfile PlayerProfile { get; private set; } = new PlayerProfile();
 
         public bool IsLobbyHost => joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
         public bool IsJoinedLobby => joinedLobby != null;
+
+        public string RelayCode { get; private set; } = "";
 
         public bool IsPlayerInLooby
         {
@@ -71,8 +73,8 @@ namespace Demo
                 {
                     if (joinedLobby.Data != null && joinedLobby.Data.ContainsKey(LobbyProfile.RELAY_JOIN_CODE_KEY))
                     {
-                        relayCode = joinedLobby.Data[LobbyProfile.RELAY_JOIN_CODE_KEY].Value;
-                        if (!string.IsNullOrEmpty(relayCode))
+                        RelayCode = joinedLobby.Data[LobbyProfile.RELAY_JOIN_CODE_KEY].Value;
+                        if (!string.IsNullOrEmpty(RelayCode))
                         {
                             return true;
                         }
@@ -107,27 +109,28 @@ namespace Demo
                     lobbyPollTimer = lobbyPollTimerMax;
                     joinedLobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
 
-                    OnJoinedLobbyUpdate?.Invoke(joinedLobby);
+                    if (IsReceivedRelayCode)
+                    {
+                        IsGameHost = IsLobbyHost;
+                        // start game
+                        if (!IsGameHost)
+                        {
+                            // lobby host already joined relay
+                            await RelayManager.Instance.JoinRelay(RelayCode);
+                        }
 
-                    if (!IsPlayerInLooby)
+                        OnGameStarted?.Invoke(IsGameHost);
+                        joinedLobby = null;
+                    }
+
+                    else if (!IsPlayerInLooby)
                     {
                         Debug.Log($"{PlayerProfile.Name} has been kicked from lobby");
                         OnKickedFromLobby?.Invoke(joinedLobby);
                         joinedLobby = null;
                     }
 
-                    if (IsReceivedRelayCode)
-                    {
-                        // start game
-                        if (!IsLobbyHost)
-                        {
-                            // lobby host already joined relay
-                            await RelayManager.Instance.JoinRelay(relayCode);
-                        }
-
-                        OnGameStarted?.Invoke(IsLobbyHost);
-                        joinedLobby = null;
-                    }
+                    OnJoinedLobbyUpdate?.Invoke(joinedLobby);
                 }
             }
         }

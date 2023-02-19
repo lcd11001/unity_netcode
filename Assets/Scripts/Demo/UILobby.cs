@@ -5,6 +5,7 @@ using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Demo
@@ -77,20 +78,27 @@ namespace Demo
 
         private void OnGameStarted(bool isHost)
         {
+            StartCoroutine(LoadGameSceneAsync(isHost));
+        }
+
+        IEnumerator LoadGameSceneAsync(bool isHost)
+        {
+            UILoading.Instance.Show();
+            
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DemoGame", LoadSceneMode.Single);
+            asyncLoad.allowSceneActivation = true;
+            while (!asyncLoad.isDone)
+            {
+                yield return null;
+            }
+            
+            UILoading.Instance.Hide();
             this.Hide();
-            if (isHost)
-            {
-                NetworkManager.Singleton.StartHost();
-            }
-            else
-            {
-                NetworkManager.Singleton.StartClient();
-            }
         }
 
         private void RefreshPlayerList(Lobby lobby)
         {
-            if (lobby.Players != null)
+            if (lobby != null && lobby.Players != null)
             {
                 foreach (var player in lobby.Players)
                 {
