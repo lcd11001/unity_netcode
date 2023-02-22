@@ -45,6 +45,7 @@ namespace Demo
 
         private void OnStartGameClicked()
         {
+            UILoading.Instance.Show();
             LobbyManager.Instance.StartGame();
         }
 
@@ -84,20 +85,34 @@ namespace Demo
 
         private void OnGameStarted(bool isHost)
         {
+            UILoading.Instance.Show();
+
             StartCoroutine(LoadGameSceneAsync(isHost));
         }
 
         IEnumerator LoadGameSceneAsync(bool isHost)
         {
-            UILoading.Instance.Show();
-            
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DemoGame", LoadSceneMode.Single);
-            asyncLoad.allowSceneActivation = true;
-            while (!asyncLoad.isDone)
+            if (isHost)
             {
-                yield return null;
+                NetworkManager.Singleton.StartHost();
+                LoadingSceneManager.Instance.LoadScene(SceneName.DEMO_GAME, true);
+                while (LoadingSceneManager.Instance.IsLoading)
+                {
+                    yield return null;
+                }
             }
-            
+            else
+            {
+                NetworkManager.Singleton.StartClient();
+            }
+
+            //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DemoGame", LoadSceneMode.Single);
+            //asyncLoad.allowSceneActivation = true;
+            //while (!asyncLoad.isDone)
+            //{
+            //    yield return null;
+            //}
+
             UILoading.Instance.Hide();
             this.Hide();
         }
