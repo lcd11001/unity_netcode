@@ -17,14 +17,12 @@ namespace Demo
 
         private IEnumerator InitNetworkLoading()
         {
-            Debug.Log("LoadingSceneManager::InitNetworkLoading 111111");
             yield return new WaitUntil(() => NetworkManager.Singleton.SceneManager != null);
-            Debug.Log("LoadingSceneManager::InitNetworkLoading 2222222");
             // Set the events on the loading manager
             // Doing this because every time the network session ends the loading manager stops detecting the events
-            NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnLoadSceneComplete;
-            NetworkManager.Singleton.SceneManager.OnLoadComplete += OnLoadSceneComplete;
-            Debug.Log("LoadingSceneManager::InitNetworkLoading 333333333");
+            NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnNetworkLoadSceneComplete;
+
+            NetworkManager.Singleton.SceneManager.OnLoadComplete += OnNetworkLoadSceneComplete;
         }
 
         //private IEnumerator Start()
@@ -69,13 +67,17 @@ namespace Demo
             }
             else
             {
-                LoadSceneLocal(sceneToLoad);
+                yield return LoadSceneLocal(sceneToLoad);
             }
         }
 
-        private void LoadSceneLocal(SceneName sceneToLoad)
+        private IEnumerator LoadSceneLocal(SceneName sceneToLoad)
         {
-            SceneManager.LoadSceneAsync(sceneToLoad.GetStringValue());
+            var operation = SceneManager.LoadSceneAsync(sceneToLoad.GetStringValue());
+            while(!operation.isDone)
+            {
+                yield return null;
+            }
 
             SceneActive = sceneToLoad;
             IsLoading = false;
@@ -86,8 +88,10 @@ namespace Demo
             NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad.GetStringValue(), LoadSceneMode.Single);
         }
 
-        private void OnLoadSceneComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
+        private void OnNetworkLoadSceneComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
         {
+            IsLoading = false;
+
             if (!NetworkManager.Singleton.IsServer)
             {
                 return;
@@ -98,8 +102,6 @@ namespace Demo
                 SceneActive = SceneName.DEMO_GAME;
                 GameManager.Instance.ServerSceneInit(clientId);
             }
-
-            IsLoading = false;
         }
     }
 

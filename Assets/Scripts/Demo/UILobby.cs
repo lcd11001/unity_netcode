@@ -95,15 +95,17 @@ namespace Demo
             if (isHost)
             {
                 NetworkManager.Singleton.StartHost();
-                LoadingSceneManager.Instance.LoadScene(SceneName.DEMO_GAME, true);
-                while (LoadingSceneManager.Instance.IsLoading)
-                {
-                    yield return null;
-                }
             }
             else
             {
                 NetworkManager.Singleton.StartClient();
+            }
+
+            LoadingSceneManager.Instance.LoadScene(SceneName.DEMO_GAME, true);
+            while (LoadingSceneManager.Instance.IsLoading)
+            {
+                //Debug.Log("IsLoading");
+                yield return null;
             }
 
             //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DemoGame", LoadSceneMode.Single);
