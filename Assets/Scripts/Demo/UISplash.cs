@@ -17,7 +17,7 @@ namespace Demo
 
         private IEnumerator GoToLobbyScene()
         {
-            yield return new WaitForSeconds(splashTimer);
+            yield return new WaitForSecondsRealtime(splashTimer);
 
             // Wait for the loading scene manager to start
             yield return new WaitUntil(() => LoadingSceneManager.Instance != null);
