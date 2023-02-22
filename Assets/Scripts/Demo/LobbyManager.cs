@@ -37,8 +37,6 @@ namespace Demo
         private float lobbyPollTimer;
         private float refreshLobbyListTimer;
 
-        public bool IsGameHost { get; private set; } = true;
-
         public PlayerProfile PlayerProfile { get; private set; } = new PlayerProfile();
 
         public bool IsLobbyHost => joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
@@ -112,15 +110,17 @@ namespace Demo
 
                     if (IsReceivedRelayCode)
                     {
-                        IsGameHost = IsLobbyHost;
                         // start game
-                        if (!IsGameHost)
+                        if (!IsLobbyHost)
                         {
                             // lobby host already joined relay
-                            await RelayManager.Instance.JoinRelay(RelayCode);
+                            if (RelayManager.Instance.IsRelayEnabled)
+                            {
+                                await RelayManager.Instance.JoinRelay(RelayCode);
+                            }
                         }
 
-                        OnGameStarted?.Invoke(IsGameHost);
+                        OnGameStarted?.Invoke(IsLobbyHost);
                         joinedLobby = null;
                     }
 
@@ -360,14 +360,19 @@ namespace Demo
             {
                 if (IsLobbyHost)
                 {
-                    string relayCode = await RelayManager.Instance.CreateRelay(joinedLobby.MaxPlayers);
+                    string relayCode = $"start_lobby_game_{joinedLobby.Id}";
+
+                    if (RelayManager.Instance.IsRelayEnabled)
+                    {
+                        await RelayManager.Instance.CreateRelay(joinedLobby.MaxPlayers);
+                    }
 
                     Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
                     {
                         Data = new Dictionary<string, DataObject>
-                        {
-                            {  LobbyProfile.RELAY_JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayCode, DataObject.IndexOptions.S2) }
-                        }
+                    {
+                        {  LobbyProfile.RELAY_JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayCode, DataObject.IndexOptions.S2) }
+                    }
                     });
 
                     joinedLobby = lobby;
