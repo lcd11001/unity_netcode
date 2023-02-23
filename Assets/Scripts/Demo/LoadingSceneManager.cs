@@ -74,11 +74,19 @@ namespace Demo
             {
                 return;
             }
-
+            /*
             if (sceneName == SceneName.DEMO_GAME.GetStringValue())
             {
                 SceneActive = SceneName.DEMO_GAME;
                 GameManager.Instance.ServerSceneInit(clientId);
+            }
+            */
+            SceneActive = EnumExtension.ParseStringValue<SceneName>(sceneName);
+            switch(SceneActive)
+            {
+                case SceneName.DEMO_GAME:
+                    GameManager.Instance.ServerSceneInit(clientId);
+                    break;
             }
         }
     }
