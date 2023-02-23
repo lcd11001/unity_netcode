@@ -17,6 +17,11 @@ namespace Demo
         [SerializeField] Button btnBack;
         [SerializeField] Button btnStart;
 
+        private void Awake()
+        {
+            btnStart.gameObject.SetActive(false);
+        }
+
         private void OnEnable()
         {
             btnBack.onClick.AddListener(OnExitLobbyClicked);

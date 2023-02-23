@@ -51,9 +51,14 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 8541732302187232909}
-    PlayerPrefab: {fileID: 5155155333180436602, guid: 5a6d91798f8478e46b66f1062d88cbbb,
-      type: 3}
+    PlayerPrefab: {fileID: 0}
     NetworkPrefabs:
+    - Override: 0
+      Prefab: {fileID: 5155155333180436602, guid: 5a6d91798f8478e46b66f1062d88cbbb,
+        type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     - Override: 0
       Prefab: {fileID: 1847228096881353670, guid: d59c1558af2b25a4d9418e6065177aec,
         type: 3}
@@ -87,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ProtocolType: 1
+  m_ProtocolType: 0
   m_MaxPacketQueueSize: 128
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
