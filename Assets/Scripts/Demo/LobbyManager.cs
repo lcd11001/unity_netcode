@@ -122,6 +122,7 @@ namespace Demo
 
                         OnGameStarted?.Invoke(IsLobbyHost);
                         joinedLobby = null;
+                        RelayCode = "";
                     }
 
                     else if (!IsPlayerInLooby)
@@ -190,7 +191,15 @@ namespace Demo
             {
                 CreateAccount = true
             };
-            await AuthenticationService.Instance.SignInAnonymouslyAsync(signInOption);
+
+            if (!AuthenticationService.Instance.IsSignedIn)
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync(signInOption);
+            }
+            else
+            {
+                OnSignedIn();
+            }
         }
 
         public async void RefreshLobbyList(string continueToken = null)
@@ -364,7 +373,7 @@ namespace Demo
 
                     if (RelayManager.Instance.IsRelayEnabled)
                     {
-                        await RelayManager.Instance.CreateRelay(joinedLobby.MaxPlayers);
+                        relayCode = await RelayManager.Instance.CreateRelay(joinedLobby.MaxPlayers);
                     }
 
                     Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
