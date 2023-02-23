@@ -13,6 +13,14 @@ namespace Demo
         [SerializeField] Toggle chkRelay;
         [SerializeField] Button btnLogin;
 
+        protected override void Start()
+        {
+            base.Start();
+
+            // refresh value after back from in-game
+            OnRelayChanged(chkRelay.isOn);
+        }
+
         private void OnEnable()
         {
             btnLogin.onClick.AddListener(OnLoginClicked);
