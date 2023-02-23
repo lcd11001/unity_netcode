@@ -10,18 +10,7 @@ namespace Demo
     public class GameManager : NetworkBehaviourSingleton<GameManager>
     {
         [SerializeField] GameObject playerPrefab;
-        //void Start()
-        //{
-        //    if (LobbyManager.Instance.IsGameHost)
-        //    {
-        //        NetworkManager.Singleton.StartHost();
-        //    }
-        //    else
-        //    {
-        //        NetworkManager.Singleton.StartClient();
-        //    }
-        //}
-
+        
         public void ServerSceneInit(ulong clientId)
         {
             Vector3 spawnPos = new Vector3(

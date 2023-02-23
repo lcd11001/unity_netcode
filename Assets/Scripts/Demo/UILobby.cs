@@ -113,13 +113,6 @@ namespace Demo
                 yield return null;
             }
 
-            //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DemoGame", LoadSceneMode.Single);
-            //asyncLoad.allowSceneActivation = true;
-            //while (!asyncLoad.isDone)
-            //{
-            //    yield return null;
-            //}
-
             UILoading.Instance.Hide();
             this.Hide();
         }

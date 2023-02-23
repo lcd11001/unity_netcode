@@ -17,34 +17,15 @@ namespace Demo
 
         private IEnumerator InitNetworkLoading()
         {
-            yield return new WaitUntil(() => NetworkManager.Singleton.SceneManager != null);
+            // waiting for network connection
+            yield return new WaitUntil(() => NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null);
+
             // Set the events on the loading manager
             // Doing this because every time the network session ends the loading manager stops detecting the events
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnNetworkLoadSceneComplete;
 
             NetworkManager.Singleton.SceneManager.OnLoadComplete += OnNetworkLoadSceneComplete;
         }
-
-        //private IEnumerator Start()
-        //{
-        //    Debug.Log("LoadingSceneManager::start");
-        //    yield return new WaitUntil(() => NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null);
-        //}
-
-        //private void Destroy()
-        //{
-        //    Debug.Log("LoadingSceneManager::Destroy");
-        //}
-
-        //private void OnEnable()
-        //{
-        //    Debug.Log("LoadingSceneManager::OnEnable");
-        //}
-
-        //private void OnDisable()
-        //{
-        //    Debug.Log("LoadingSceneManager::OnDisable");
-        //}
 
         public void LoadScene(SceneName sceneToLoad, bool isNetworkSessionActive)
         {
@@ -54,14 +35,11 @@ namespace Demo
 
         private IEnumerator Loading(SceneName sceneToLoad, bool isNetworkSessionActive)
         {
-            // [TODO]: Fading effect
-            yield return null;
-
             if (isNetworkSessionActive)
             {
-                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+                yield return InitNetworkLoading();
+                if (NetworkManager.Singleton.IsServer)
                 {
-                    yield return InitNetworkLoading();
                     LoadSceneNetwork(sceneToLoad);
                 }
             }
