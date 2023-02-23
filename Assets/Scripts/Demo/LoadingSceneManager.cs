@@ -81,8 +81,10 @@ namespace Demo
                 GameManager.Instance.ServerSceneInit(clientId);
             }
             */
-            SceneActive = EnumExtension.ParseStringValue<SceneName>(sceneName);
-            switch(SceneActive)
+
+            //SceneActive = EnumExtension.ParseStringValue<SceneName>(sceneName);
+            SceneActive = sceneName.ToEnum<SceneName>();
+            switch (SceneActive)
             {
                 case SceneName.DEMO_GAME:
                     GameManager.Instance.ServerSceneInit(clientId);

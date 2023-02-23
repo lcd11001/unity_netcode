@@ -1,10 +1,11 @@
+using Demo;
 using System;
 using System.Reflection;
 
 public static class EnumExtension
 {
     public static T GetAttribute<T>(this Enum value)
-        where T: Attribute
+        where T : Attribute
     {
         // Get the type
         Type type = value.GetType();
@@ -32,11 +33,17 @@ public static class EnumExtension
         return attribute == null ? value.ToString() : attribute.StringValue;
     }
 
-    public static T ParseStringValue<T>(string value)
-        where T: Enum
+    /// <summary>
+    /// Will convert string value to enum
+    /// </summary>
+    /// <typeparam name="T">destination Enum type</typeparam>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static T ToEnum<T>(this string value)
+        where T : Enum
     {
         var type = typeof(T);
-        foreach(var field in type.GetFields())
+        foreach (var field in type.GetFields())
         {
             var attribute = field.GetCustomAttribute<StringValueAttribute>(false);
             //var attribute = Attribute.GetCustomAttribute(field, typeof(StringValueAttribute), false) as StringValueAttribute;
