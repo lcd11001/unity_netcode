@@ -11,9 +11,9 @@ namespace Demo
 
     public class LoadingSceneManager : MonoBehaviourSingletonPersistent<LoadingSceneManager>
     {
-        [field: SerializeField] public SceneName SceneActive;
+        [field: SerializeField] public SceneName SceneActive { get; private set; } = SceneName.NONE;
 
-        public bool IsLoading { get; private set; } = false;
+        [field: SerializeField] public bool IsLoading { get; private set; } = false;
 
         private IEnumerator InitNetworkLoading()
         {
@@ -68,7 +68,10 @@ namespace Demo
 
         private void OnNetworkLoadSceneComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
         {
-            IsLoading = false;
+            if (NetworkManager.Singleton.LocalClientId == clientId)
+            {
+                IsLoading = false;
+            }
 
             if (!NetworkManager.Singleton.IsServer)
             {
