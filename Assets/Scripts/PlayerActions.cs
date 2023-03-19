@@ -80,7 +80,7 @@ public class PlayerActions : MonoBehaviour
             Vector2 screenPos = actions.Player.TouchPosition.ReadValue<Vector2>();
             touchInput.x = screenPos.x;
             touchInput.y = screenPos.y;
-            touchInput.z = mainCamera.nearClipPlane - mainCamera.transform.position.z;
+            touchInput.z = /*mainCamera.nearClipPlane*/ - mainCamera.transform.position.z;
             Vector3 worldPos = mainCamera.ScreenToWorldPoint(touchInput);
             controller.OnMoveToward(worldPos);
 
