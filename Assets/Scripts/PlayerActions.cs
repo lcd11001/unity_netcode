@@ -9,16 +9,20 @@ public class PlayerActions : MonoBehaviour
 {
     private PlayerControls actions;
     private IPlayerController controller;
-    
+
     private bool isTouching;
     private bool isKeyPress;
-    
+
     private Camera mainCamera;
     private Vector3 touchInput;
+
+    readonly object lockKey = new object();
+    readonly object lockTouch = new object();
+
     private void Awake()
     {
         actions = new PlayerControls();
-        
+
         controller = GetComponent<IPlayerController>();
         Assert.IsNotNull(controller, "PlayerController component not found");
 
@@ -36,8 +40,8 @@ public class PlayerActions : MonoBehaviour
         actions.Enable();
     }
 
-    
-private void OnDisable()
+
+    private void OnDisable()
     {
         actions.Disable();
         actions.Player.Movement.performed -= Movement_performed;
@@ -47,20 +51,31 @@ private void OnDisable()
         actions.Player.Touch.canceled -= Touch_canceled;
     }
 
+    #region Touchscreen
+
     private void Touch_started(InputAction.CallbackContext obj)
     {
-        isTouching = true;
-        StartCoroutine(DetectTouch());
+        lock (lockTouch)
+        {
+            if (isTouching == false)
+            {
+                isTouching = true;
+                StartCoroutine(DetectTouch());
+            }
+        }
     }
 
     private void Touch_canceled(InputAction.CallbackContext obj)
     {
-        isTouching = false;
+        lock (lockTouch)
+        {
+            isTouching = false;
+        }
     }
 
     private IEnumerator DetectTouch()
     {
-        while(isTouching)
+        while (isTouching)
         {
             Vector2 screenPos = actions.Player.TouchPosition.ReadValue<Vector2>();
             touchInput.x = screenPos.x;
@@ -73,25 +88,39 @@ private void OnDisable()
         }
     }
 
+    #endregion
+
+    #region Keyboard
+
     private void Movement_performed(InputAction.CallbackContext context)
     {
-        isKeyPress = true;
-        StartCoroutine(DetectKeyboard());
+        lock (lockKey)
+        {
+            if (isKeyPress == false)
+            {
+                isKeyPress = true;
+                StartCoroutine(DetectKeyboard());
+            }
+        }
     }
 
     private void Movement_canceled(InputAction.CallbackContext context)
     {
-        isKeyPress = false;
+        lock (lockKey)
+        {
+            isKeyPress = false;
+        }
     }
 
     private IEnumerator DetectKeyboard()
     {
-        while(isKeyPress)
+        while (isKeyPress)
         {
             controller.OnMove(actions.Player.Movement.ReadValue<Vector2>());
             yield return null;
         }
     }
 
+    #endregion
 
 }
