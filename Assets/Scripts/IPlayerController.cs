@@ -9,6 +9,7 @@ public interface IComponent
 
 public interface IPlayerController
 {
+    bool IsMoving { get; set; }
     void OnMove(Vector2 value);
     void OnMoveToward(Vector3 target);
 }

@@ -10,9 +10,6 @@ public class PlayerActions : MonoBehaviour
     private PlayerControls actions;
     private IPlayerController controller;
 
-    private bool isTouching;
-    private bool isKeyPress;
-
     private Camera mainCamera;
     private Vector3 touchInput;
 
@@ -57,9 +54,9 @@ public class PlayerActions : MonoBehaviour
     {
         lock (lockTouch)
         {
-            if (isTouching == false)
+            if (controller.IsMoving == false)
             {
-                isTouching = true;
+                controller.IsMoving = true;
                 StartCoroutine(DetectTouch());
             }
         }
@@ -69,13 +66,13 @@ public class PlayerActions : MonoBehaviour
     {
         lock (lockTouch)
         {
-            isTouching = false;
+            controller.IsMoving = false;
         }
     }
 
     private IEnumerator DetectTouch()
     {
-        while (isTouching)
+        while (controller.IsMoving)
         {
             Vector2 screenPos = actions.Player.TouchPosition.ReadValue<Vector2>();
             touchInput.x = screenPos.x;
@@ -96,9 +93,9 @@ public class PlayerActions : MonoBehaviour
     {
         lock (lockKey)
         {
-            if (isKeyPress == false)
+            if (controller.IsMoving == false)
             {
-                isKeyPress = true;
+                controller.IsMoving = true;
                 StartCoroutine(DetectKeyboard());
             }
         }
@@ -108,13 +105,13 @@ public class PlayerActions : MonoBehaviour
     {
         lock (lockKey)
         {
-            isKeyPress = false;
+            controller.IsMoving = false;
         }
     }
 
     private IEnumerator DetectKeyboard()
     {
-        while (isKeyPress)
+        while (controller.IsMoving)
         {
             controller.OnMove(actions.Player.Movement.ReadValue<Vector2>());
             yield return null;
