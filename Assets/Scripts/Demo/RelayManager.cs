@@ -17,14 +17,15 @@ namespace Demo
     [RequireComponent(typeof(UnityTransport))]
     public class RelayManager : MonoBehaviourSingletonPersistent<RelayManager>
     {
-        [SerializeField] private string environment = "production";
+        [SerializeField] private string environment = "staging"; //"production";
 
         public bool IsRelayEnabled => Transport != null && Transport.Protocol == UnityTransport.ProtocolType.RelayUnityTransport;
 
         public UnityTransport Transport => NetworkManager.Singleton.NetworkConfig.NetworkTransport.gameObject.GetComponent<UnityTransport>();
 
-        private void Start()
+        private IEnumerator Start()
         {
+            yield return new WaitUntil(() => NetworkManager.Singleton != null);
             if (!IsRelayEnabled)
             {
                 Debug.LogWarning("Please switch to Relay Unity Transport");

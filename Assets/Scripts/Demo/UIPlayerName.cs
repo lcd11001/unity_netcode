@@ -19,7 +19,7 @@ namespace Demo
             base.Start();
 
             playerName = btnPlayerName.GetComponentInChildren<TextMeshProUGUI>();
-            LobbyManager.Instance.PlayerProfile.Name = playerName.text;
+            LobbyManager.Instance.PlayerProfile.Name = "";
         }
 
         private void OnEnable()

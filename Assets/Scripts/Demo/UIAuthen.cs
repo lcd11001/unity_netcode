@@ -25,12 +25,16 @@ namespace Demo
         {
             btnLogin.onClick.AddListener(OnLoginClicked);
             chkRelay.onValueChanged.AddListener(OnRelayChanged);
+
+            LobbyManager.Instance.OnAuthenError.AddListener(OnAuthenError);
         }
 
         private void OnDisable()
         {
             btnLogin.onClick.RemoveListener(OnLoginClicked);
             chkRelay.onValueChanged.RemoveListener(OnRelayChanged);
+
+            LobbyManager.Instance.OnAuthenError.RemoveListener(OnAuthenError);
         }
 
         private void OnRelayChanged(bool enable)
@@ -58,8 +62,13 @@ namespace Demo
 
         private void OnLoginClicked()
         {
-            LobbyManager.Instance.Authen();
             this.Hide();
+            LobbyManager.Instance.Authen();
+        }
+
+        private void OnAuthenError(string error)
+        {
+            this.Show();
         }
     }
 }

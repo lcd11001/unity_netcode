@@ -19,6 +19,7 @@ namespace Demo
         [SerializeField] float refreshLobbyListTimerMax = 5f;
 
         public UnityEvent OnAuthenSignedIn;
+        public UnityEvent<string> OnAuthenError;
 
         public UnityEvent<Lobby> OnJoinedLobby;
         public UnityEvent<Lobby> OnJoinedLobbyUpdate;
@@ -175,17 +176,33 @@ namespace Demo
             OnAuthenSignedIn?.Invoke();
         }
 
+        private void OnError(Exception exception)
+        {
+            UILoading.Instance.Hide();
+            Debug.LogError(exception.Message);
+            OnAuthenError?.Invoke(exception.Message);
+        }
+
         public async void Authen()
         {
             UILoading.Instance.Show();
 
-            var initOption = new InitializationOptions()
-                // must use SetProfile to generate difference PlayerId after signed in
-                .SetProfile(PlayerProfile.Name);
+            try
+            {
+                var initOption = new InitializationOptions()
+                    // must use SetProfile to generate difference PlayerId after signed in
+                    .SetProfile(PlayerProfile.Name);
 
-            await UnityServices.InitializeAsync(initOption);
+                await UnityServices.InitializeAsync(initOption);
+            }
+            catch (Exception e)
+            {
+                OnError(e);
+                return;
+            }
 
             AuthenticationService.Instance.SignedIn += OnSignedIn;
+            AuthenticationService.Instance.SignInFailed += OnError;
 
             var signInOption = new SignInOptions
             {
